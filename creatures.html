@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>Deep Sea Creatures - Oceanus</title>
+    <style>
+        :root {
+            --hull-1: #0b1f2a;
+            --hull-2: #0a1a22;
+            --hud: #00ff9d;
+            --hud-dim: #00b36f;
+            --card: rgba(15, 30, 40, 0.75);
+            --radius: 16px;
+            --shadow: 0 4px 10px rgba(0,0,0,.35);
+            --shadow-lg: 0 18px 40px rgba(0,0,0,.5);
+        }
+        
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'Pirata One', cursive;
+            margin: 0;
+            padding: 0;
+            color: #cde7f5;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(0,255,255,.15), transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(0,255,157,.12), transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(100,0,255,.08), transparent 50%),
+                linear-gradient(180deg, #000814, #001a2e, #000814);
+            overflow-x: hidden;
+            position: relative;
+            font-size: 20px;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(0,255,255,.15) 1px, transparent 1px) 0 0/50px 100%,
+                linear-gradient(0deg, rgba(0,255,255,.15) 1px, transparent 1px) 0 0/100% 50px,
+                linear-gradient(90deg, rgba(0,255,157,.08) 1px, transparent 1px) 0 0/10px 100%,
+                linear-gradient(0deg, rgba(0,255,157,.08) 1px, transparent 1px) 0 0/100% 10px;
+            pointer-events: none;
+            opacity: .4;
+            z-index: 0;
+            animation: grid-scroll 20s linear infinite;
+        }
+        
+        @keyframes grid-scroll {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(50px); }
+        }
+        
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0,255,255,.02) 0px,
+                transparent 1px,
+                transparent 2px,
+                rgba(0,255,255,.02) 3px
+            );
+            pointer-events: none;
+            z-index: 1;
+            animation: scanline 8s linear infinite;
+        }
+        
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+        
+        header {
+            position: relative;
+            background: linear-gradient(180deg, #0f2632, #0a1f29);
+            border-bottom: 2px solid rgba(0,255,157,.25);
+            color: #e7fbff;
+            text-align: center;
+            padding: 24px 16px 16px;
+            box-shadow: var(--shadow-lg);
+            z-index: 2;
+        }
+        
+        header h1 {
+            font-family: 'Orbitron', system-ui, sans-serif;
+            letter-spacing: .05em;
+            color: #ccf7ff;
+            font-size: 3.2rem;
+            margin: 0 0 10px 0;
+            text-shadow: 0 0 12px rgba(0,255,157,.3);
+            animation: fadeInDown 1s ease;
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+        }
+        
+        nav a {
+            background: linear-gradient(180deg, #123241, #0e2a36);
+            color: #cde7f5;
+            padding: 14px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            letter-spacing: .03em;
+            border: 1px solid rgba(0,255,157,.25);
+            box-shadow: inset 0 0 12px rgba(0,255,157,.08), var(--shadow);
+            transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+        }
+        
+        nav a:hover {
+            background: #123543;
+            transform: translateY(-1px);
+            box-shadow: inset 0 0 20px rgba(0,255,157,.15), var(--shadow-lg);
+        }
+        
+        nav a[aria-current="page"] {
+            outline: 2px solid var(--hud-dim);
+            box-shadow: inset 0 0 24px rgba(0,255,157,.22), 0 0 14px rgba(0,255,157,.25);
+        }
+        
+        .tour-btn {
+            background: linear-gradient(180deg, #123241, #0e2a36);
+            color: #cde7f5;
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,255,157,.35);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: inset 0 0 12px rgba(0,255,157,.12), var(--shadow);
+        }
+        .tour-btn:hover {
+            box-shadow: inset 0 0 20px rgba(0,255,157,.22), var(--shadow-lg);
+        }
+        
+        main {
+            position: relative;
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 24px;
+            background: var(--card);
+            border: 1px solid rgba(0,255,157,.18);
+            border-radius: var(--radius);
+            backdrop-filter: blur(4px) saturate(120%);
+            box-shadow: 0 10px 40px rgba(0,0,0,.45);
+            z-index: 1;
+        }
+        
+        h2 {
+            font-family: 'Orbitron', system-ui, sans-serif;
+            color: var(--hud);
+            font-size: 2.6rem;
+            margin: 30px 0 15px 0;
+            text-shadow: 0 0 8px rgba(0,255,157,.3);
+            text-align: center;
+        }
+        
+        .intro-section {
+            background: linear-gradient(135deg, rgba(17,62,58,.7), rgba(12,47,52,.6));
+            border: 1px solid rgba(0,255,157,.2);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .intro-section p {
+            color: #c9ffe9;
+            line-height: 1.8;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        
+        /* Creature Cards */
+        .creatures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .creature-card {
+            background: linear-gradient(135deg, rgba(10,35,45,.9), rgba(5,25,35,.8));
+            border: 1px solid rgba(0,255,157,.2);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .creature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,255,157,.2);
+        }
+        
+        .creature-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 2px solid rgba(0,255,157,.3);
+        }
+        
+        .creature-content {
+            padding: 20px;
+        }
+        
+        .creature-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--hud);
+            font-size: 1.8rem;
+            margin: 0 0 5px 0;
+        }
+        
+        .creature-card .scientific-name {
+            color: #7aa;
+            font-style: italic;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .creature-card p {
+            color: #c9ffe9;
+            line-height: 1.7;
+            margin: 0 0 15px 0;
+            font-size: 1.3rem;
+        }
+        
+        .creature-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-badge {
+            background: rgba(0,255,157,.1);
+            border: 1px solid rgba(0,255,157,.3);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--hud);
+        }
+        
+        /* Bioluminescence Simulation */
+        .simulation-section {
+            background: linear-gradient(135deg, rgba(0,10,20,.95), rgba(0,5,15,.95));
+            border: 2px solid rgba(0,255,157,.3);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 40px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .simulation-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--hud);
+            font-size: 2rem;
+            margin: 0 0 20px 0;
+            text-align: center;
+        }
+        
+        .biolum-container {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            background: 
+                radial-gradient(circle at 30% 40%, rgba(20,0,40,0.8) 0%, transparent 30%),
+                radial-gradient(circle at 70% 60%, rgba(40,0,20,0.6) 0%, transparent 25%),
+                linear-gradient(to bottom, #000000, #000814, #000000);
+            border: 2px solid rgba(255,0,100,.4);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: inset 0 0 60px rgba(0,0,0,0.9), 0 0 30px rgba(255,0,100,.2);
+        }
+        
+        .biolum-creature {
+            position: absolute;
+            font-size: 3rem;
+            transition: all 0.5s ease;
+            cursor: pointer;
+            filter: brightness(0.1) grayscale(0.8);
+            text-shadow: 0 0 5px rgba(0,0,0,0.9);
+        }
+        
+        .biolum-creature.glow {
+            filter: brightness(2) drop-shadow(0 0 40px currentColor) drop-shadow(0 0 60px currentColor);
+            animation: pulse-glow-scary 0.8s ease-in-out infinite;
+            transform: scale(1.3);
+        }
+        
+        @keyframes pulse-glow-scary {
+            0%, 100% { 
+                filter: brightness(2) drop-shadow(0 0 40px currentColor) drop-shadow(0 0 60px currentColor);
+                transform: scale(1.3);
+            }
+            50% { 
+                filter: brightness(3) drop-shadow(0 0 80px currentColor) drop-shadow(0 0 120px currentColor);
+                transform: scale(1.4);
+            }
+        }
+        
+        .light-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #00ff9d;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float-up-scary 3s ease-out forwards;
+            box-shadow: 0 0 20px currentColor, 0 0 40px currentColor;
+        }
+        
+        @keyframes float-up-scary {
+            0% { opacity: 1; transform: translateY(0) scale(1); box-shadow: 0 0 20px currentColor; }
+            50% { opacity: 0.8; transform: translateY(-50px) scale(1.5); box-shadow: 0 0 40px currentColor; }
+            100% { opacity: 0; transform: translateY(-120px) scale(0.5); box-shadow: 0 0 60px currentColor; }
+        }
+        
+        .simulation-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .sim-btn {
+            background: linear-gradient(180deg, #1a0a0a, #0a0505);
+            color: #ff3366;
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: 1px solid rgba(255,0,100,.6);
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(255,0,100,.3);
+        }
+        
+        .sim-btn:hover {
+            background: rgba(255,0,100,.3);
+            box-shadow: 0 0 30px rgba(255,0,100,.6), inset 0 0 20px rgba(255,0,100,.2);
+            color: #ff0066;
+            transform: scale(1.05);
+        }
+        
+        /* What-If Section */
+        .whatif-section {
+            background: rgba(0,0,0,.3);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .whatif-title {
+            font-family: 'Orbitron', sans-serif;
+            color: #ff6b6b;
+            font-size: 1.3rem;
+            margin: 0 0 15px 0;
+        }
+        
+        .whatif-scenario {
+            background: rgba(255,100,100,.1);
+            border-left: 4px solid #ff6b6b;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+        }
+        
+        .whatif-scenario h4 {
+            color: #ff9999;
+            margin: 0 0 10px 0;
+        }
+        
+        .whatif-scenario p {
+            color: #c9ffe9;
+            margin: 0;
+            line-height: 1.7;
+        }
+        
+        footer {
+            background: linear-gradient(180deg, #0a1e27, #08171f);
+            color: #bdefff;
+            text-align: center;
+            padding: 18px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(0,255,157,.2);
+        }
+        
+        footer p {
+            margin: 0;
+        }
+        
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(0,255,157,.4), transparent);
+            margin: 30px 0;
+        }
+        
+        /* Bubbles */
+        .bubbles {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bubbles span {
+            position: absolute;
+            bottom: -80px;
+            width: 10px; height: 10px;
+            background: radial-gradient(circle at 30% 30%, #cffff0, rgba(200,255,240,.15));
+            border-radius: 50%;
+            animation: rise linear infinite;
+            opacity: .6;
+        }
+        @keyframes rise {
+            from { transform: translateY(0) translateX(0) scale(1); }
+            to   { transform: translateY(-110vh) translateX(-30px) scale(1.2); }
+        }
+        
+        .sonar {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at center, rgba(0,255,157,.15) 0 40%, transparent 41%),
+                radial-gradient(circle at center, rgba(0,255,157,.08) 0 70%, transparent 71%),
+                radial-gradient(circle at center, rgba(0,255,157,.05) 0 99%, transparent 100%),
+                conic-gradient(from 0deg, rgba(0,255,157,0) 0 85%, rgba(0,255,157,.45) 86% 92%, rgba(0,255,157,0) 93% 100%);
+            border: 2px solid rgba(0,255,157,.35);
+            box-shadow: 0 0 30px rgba(0,255,157,.25), inset 0 0 20px rgba(0,255,157,.2);
+            animation: sweep 3.5s linear infinite;
+            z-index: 3;
+        }
+        @keyframes sweep { to { transform: rotate(360deg); } }
+        
+        .submarine {
+            position: fixed;
+            left: -200px;
+            top: 55%;
+            width: 180px;
+            height: 70px;
+            transform: translateY(-50%);
+            filter: drop-shadow(0 0 25px rgba(0,255,255,.5)) drop-shadow(0 10px 20px rgba(0,255,157,.3));
+            opacity: .95;
+            z-index: 4;
+            pointer-events: none;
+        }
+        .submarine.sail { animation: sail-across 6s ease-in-out forwards; }
+        .submarine .prop { transform-origin: 165px 35px; animation: spin 0.15s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes sail-across {
+            0%   { left: -200px; transform: translateY(-50%) rotate(0deg); }
+            50%  { left: calc(50% - 90px); transform: translateY(-50%) rotate(0deg); }
+            100% { left: calc(100% + 220px); transform: translateY(-50%) rotate(2deg); }
+        }
+        
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.4rem; }
+            h2 { font-size: 2rem; }
+            .biolum-container { height: 250px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bubbles" aria-hidden="true">
+    <span style="left:5%;  animation-duration: 16s; animation-delay: -2s;"></span>
+    <span style="left:15%; animation-duration: 18s; animation-delay: -6s;"></span>
+    <span style="left:28%; animation-duration: 20s; animation-delay: -12s; width:14px; height:14px;"></span>
+    <span style="left:38%; animation-duration: 22s; animation-delay: -4s;"></span>
+    <span style="left:50%; animation-duration: 17s; animation-delay: -9s;"></span>
+    <span style="left:63%; animation-duration: 19s; animation-delay: -3s; width:12px; height:12px;"></span>
+    <span style="left:72%; animation-duration: 23s; animation-delay: -14s;"></span>
+    <span style="left:81%; animation-duration: 21s; animation-delay: -7s;"></span>
+    <span style="left:90%; animation-duration: 24s; animation-delay: -11s; width:16px; height:16px;"></span>
+</div>
+
+<div class="sonar" aria-hidden="true"></div>
+
+<div class="submarine" aria-hidden="true">
+    <svg width="180" height="70" viewBox="0 0 180 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="futuristicHull" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="#00ffff" stop-opacity=".6"/>
+                <stop offset="0.5" stop-color="#00ff9d" stop-opacity=".8"/>
+                <stop offset="1" stop-color="#0080ff" stop-opacity=".6"/>
+            </linearGradient>
+            <linearGradient id="glowAccent" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0" stop-color="#00ffff"/>
+                <stop offset="1" stop-color="#00ff9d"/>
+            </linearGradient>
+        </defs>
+        <!-- Main hull - angular futuristic shape -->
+        <path d="M20,35 L90,20 L140,25 L160,35 L140,45 L90,50 L20,35 Z" fill="url(#futuristicHull)" opacity=".7"/>
+        <path d="M20,35 L90,20 L140,25 L160,35 L140,45 L90,50 L20,35 Z" stroke="#00ffff" stroke-width="1.5" fill="none" opacity=".9"/>
+        <!-- Cockpit dome -->
+        <ellipse cx="70" cy="35" rx="18" ry="12" fill="rgba(0,255,255,.3)" stroke="#00ffff" stroke-width="2"/>
+        <ellipse cx="70" cy="35" rx="12" ry="8" fill="rgba(0,255,255,.5)"/>
+        <!-- Tech panels -->
+        <rect x="45" y="32" width="8" height="6" fill="#00ff9d" opacity=".8"/>
+        <rect x="85" y="30" width="10" height="4" fill="#00ffff" opacity=".7"/>
+        <rect x="100" y="32" width="6" height="5" fill="#00ff9d" opacity=".8"/>
+        <!-- Engine exhausts -->
+        <rect x="155" y="30" width="8" height="4" rx="1" fill="url(#glowAccent)" opacity=".9"/>
+        <rect x="155" y="36" width="8" height="4" rx="1" fill="url(#glowAccent)" opacity=".9"/>
+        <!-- Propeller (animated) -->
+        <g class="prop">
+            <line x1="165" y1="35" x2="175" y2="30" stroke="#00ffff" stroke-width="2" opacity=".9"/>
+            <line x1="165" y1="35" x2="175" y2="40" stroke="#00ffff" stroke-width="2" opacity=".9"/>
+            <circle cx="165" cy="35" r="3" fill="#00ff9d"/>
+        </g>
+        <!-- Accent lights -->
+        <circle cx="30" cy="35" r="2" fill="#00ffff" opacity=".9"/>
+        <circle cx="120" cy="33" r="1.5" fill="#00ff9d" opacity=".9"/>
+        <circle cx="135" cy="37" r="1.5" fill="#00ffff" opacity=".9"/>
+        <!-- Top fin -->
+        <path d="M75,20 L80,10 L85,20 Z" fill="url(#glowAccent)" opacity=".7" stroke="#00ffff" stroke-width="1"/>
+    </svg>
+</div>
+
+<header>
+    <h1>Submarine Log: Deep Sea Creatures</h1>
+    <nav aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="creatures.html" aria-current="page">Deep Sea Creatures</a>
+        <a href="cities.html">Sunken Cities</a>
+        <a href="Shipwrecks.html">Famous Shipwrecks</a>
+        <a href="reefs.html">Coral Reefs</a>
+        <a href="save.html">Save the Ocean</a>
+        <a href="feedback.html">Feedback and About</a>
+        <a href="ocean.html">A Short Quiz</a>
+        <button id="startTour" type="button" class="tour-btn">Start Submarine Tour</button>
+        <button id="stopTour" type="button" class="tour-btn" style="display:none;">Stop</button>
+    </nav>
+</header>
+
+<main>
+    <div class="intro-section">
+        <p>
+            🦑 Welcome to the abyss! The deep ocean is home to some of the most bizarre, beautiful, and terrifying creatures on Earth. 
+            In complete darkness, under crushing pressure, life has evolved in extraordinary ways. 
+            Over 80% of the ocean remains unexplored — who knows what else lurks in the deep?
+        </p>
+    </div>
+    
+    <h2>🔬 Bioluminescence Simulation</h2>
+    <div class="simulation-section">
+        <h3 class="simulation-title">Click the creatures to see them glow!</h3>
+        <p style="text-align: center; color: #7aa; margin-bottom: 20px;">
+            In the midnight zone, 90% of creatures produce their own light through bioluminescence.
+        </p>
+        
+        <div class="biolum-container" id="biolumContainer">
+            <div class="biolum-creature" style="left: 10%; top: 20%; color: #00ffff;" data-name="Anglerfish">🐡</div>
+            <div class="biolum-creature" style="left: 30%; top: 60%; color: #ff00ff;" data-name="Jellyfish">🎐</div>
+            <div class="biolum-creature" style="left: 50%; top: 30%; color: #00ff00;" data-name="Squid">🦑</div>
+            <div class="biolum-creature" style="left: 70%; top: 70%; color: #ffff00;" data-name="Lanternfish">🐟</div>
+            <div class="biolum-creature" style="left: 85%; top: 40%; color: #00ffaa;" data-name="Dragonfish">🐉</div>
+            <div class="biolum-creature" style="left: 20%; top: 80%; color: #ff6600;" data-name="Firefly Squid">✨</div>
+        </div>
+        
+        <div class="simulation-controls">
+            <button class="sim-btn" onclick="glowAll()">🌟 Light Up All</button>
+            <button class="sim-btn" onclick="resetGlow()">🌑 Darkness</button>
+            <button class="sim-btn" onclick="randomGlow()">🎲 Random Glow</button>
+        </div>
+    </div>
+    
+    <h2>Featured Deep Sea Creatures</h2>
+    <div class="creatures-grid">
+        <div class="creature-card">
+            <img src="https://images.unsplash.com/photo-1545671913-b89ac1b4ac10?w=600&q=80" alt="Anglerfish" class="creature-img">
+            <div class="creature-content">
+                <h3>🔦 Anglerfish</h3>
+                <div class="scientific-name">Lophiiformes</div>
+                <p>The stuff of nightmares! Female anglerfish have a bioluminescent lure that dangles from their head to attract prey in the pitch-black depths. Males are tiny parasites that fuse to females permanently.</p>
+                <div class="creature-stats">
+                    <span class="stat-badge">📏 Up to 1m</span>
+                    <span class="stat-badge">🌊 200-2000m</span>
+                    <span class="stat-badge">💡 Bioluminescent</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="creature-card">
+            <img src="https://images.unsplash.com/photo-1437622368342-7a3d73a34c8f?w=600&q=80" alt="Giant Squid" class="creature-img">
+            <div class="creature-content">
+                <h3>🦑 Giant Squid</h3>
+                <div class="scientific-name">Architeuthis dux</div>
+                <p>The legendary sea monster! With eyes the size of dinner plates (25cm), giant squids can detect the faintest light in the deep. They battle sperm whales in epic underwater fights.</p>
+                <div class="creature-stats">
+                    <span class="stat-badge">📏 Up to 13m</span>
+                    <span class="stat-badge">🌊 300-1000m</span>
+                    <span class="stat-badge">👁️ Largest eyes</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="creature-card">
+            <img src="https://images.unsplash.com/photo-1551244072-5d12893278ab?w=600&q=80" alt="Vampire Squid" class="creature-img">
+            <div class="creature-content">
+                <h3>🧛 Vampire Squid</h3>
+                <div class="scientific-name">Vampyroteuthis infernalis</div>
+                <p>"Vampire squid from hell" — its scientific name! Despite the terrifying name, it's harmless, feeding on marine snow. It can turn itself inside-out and has photophores all over its body.</p>
+                <div class="creature-stats">
+                    <span class="stat-badge">📏 30cm</span>
+                    <span class="stat-badge">🌊 600-900m</span>
+                    <span class="stat-badge">🔴 Red/Black</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="creature-card">
+            <img src="https://animalhype.com/wp-content/uploads/2019/08/goblin_shark_facts.jpg" alt="Goblin Shark" class="creature-img">
+            <div class="creature-content">
+                <h3>👺 Goblin Shark</h3>
+                <div class="scientific-name">Mitsukurina owstoni</div>
+                <p>A "living fossil" unchanged for 125 million years! Its jaw can shoot forward like a slingshot to catch prey. Pink-skinned due to visible blood vessels under translucent skin.</p>
+                <div class="creature-stats">
+                    <span class="stat-badge">📏 3-4m</span>
+                    <span class="stat-badge">🌊 270-1300m</span>
+                    <span class="stat-badge">🦷 Protruding jaw</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="creature-card">
+            <img src=""https://cdn.mos.cms.futurecdn.net/vb3ZfYob24aPMrajDdhRye.jpg">
+                <h3>👀 Barreleye Fish</h3>
+                <div class="scientific-name">Macropinna microstoma</div>
+                <p>The fish with a transparent head! Its tubular eyes can rotate inside its see-through skull to look up through its forehead, detecting the silhouettes of prey above.</p>
+                <div class="creature-stats">
+                    <span class="stat-badge">📏 15cm</span>
+                    <span class="stat-badge">🌊 600-800m</span>
+                    <span class="stat-badge">🔮 Transparent head</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="creature-card">
+            <img src="https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=600&q=80" alt="Giant Isopod" class="creature-img">
+            <div class="creature-content">
+                <h3>🦀 Giant Isopod</h3>
+                <div class="scientific-name">Bathynomus giganteus</div>
+                <p>A massive deep-sea roly-poly! These ancient scavengers can grow to 76cm and survive years without food. When threatened, they curl into an armored ball.</p>
+                <div class="creature-stats">
+                    <span class="stat-badge">📏 Up to 76cm</span>
+                    <span class="stat-badge">🌊 170-2500m</span>
+                    <span class="stat-badge">⏰ 5 years without food</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- What-If Section -->
+    <div class="whatif-section">
+        <h3 class="whatif-title">🤔 WHAT IF Scenarios</h3>
+        
+        <div class="whatif-scenario">
+            <h4>What if deep-sea creatures came to the surface?</h4>
+            <p>Most would die instantly! They're adapted to crushing pressures (up to 1,000 ATM). At the surface, their bodies would expand, their gas-filled swim bladders would rupture, and the temperature change would be lethal. Some species literally "melt" when brought up too quickly.</p>
+        </div>
+        
+        <div class="whatif-scenario">
+            <h4>What if we could see all bioluminescent creatures at once?</h4>
+            <p>The deep ocean would light up like a galaxy! Scientists estimate that 76% of ocean animals produce light. The deep sea contains more bioluminescence than all the stars visible in the night sky. It would be the most spectacular light show on Earth.</p>
+        </div>
+        
+        <div class="whatif-scenario">
+            <h4>What if the giant squid's eyes were on land animals?</h4>
+            <p>A human with proportional eyes would have eyes 30cm (1 foot) in diameter! Giant squid eyes evolved to detect the faint bioluminescence of approaching sperm whales from 120 meters away in total darkness.</p>
+        </div>
+    </div>
+</main>
+
+<hr/>
+<footer>
+    <p>Created by Kingsuk Maiti, Gourav Poddar,Neel Roy and Rohan Saha</p>
+</footer>
+
+<script>
+// Bioluminescence Simulation
+const creatures = document.querySelectorAll('.biolum-creature');
+const container = document.getElementById('biolumContainer');
+
+creatures.forEach(creature => {
+    creature.addEventListener('click', function() {
+        this.classList.toggle('glow');
+        createParticles(this);
+    });
+});
+
+function createParticles(element) {
+    const rect = element.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    
+    for (let i = 0; i < 8; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'light-particle';
+        particle.style.left = (rect.left - containerRect.left + rect.width/2 + (Math.random() - 0.5) * 40) + 'px';
+        particle.style.top = (rect.top - containerRect.top + rect.height/2) + 'px';
+        particle.style.background = element.style.color;
+        container.appendChild(particle);
+        
+        setTimeout(() => particle.remove(), 3000);
+    }
+}
+
+function glowAll() {
+    creatures.forEach(c => {
+        c.classList.add('glow');
+        createParticles(c);
+    });
+}
+
+function resetGlow() {
+    creatures.forEach(c => c.classList.remove('glow'));
+}
+
+function randomGlow() {
+    resetGlow();
+    const count = Math.floor(Math.random() * creatures.length) + 1;
+    const shuffled = [...creatures].sort(() => Math.random() - 0.5);
+    for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+            shuffled[i].classList.add('glow');
+            createParticles(shuffled[i]);
+        }, i * 300);
+    }
+}
+
+// Auto random glow every 5 seconds
+setInterval(() => {
+    if (Math.random() > 0.5) {
+        const randomCreature = creatures[Math.floor(Math.random() * creatures.length)];
+        randomCreature.classList.add('glow');
+        createParticles(randomCreature);
+        setTimeout(() => randomCreature.classList.remove('glow'), 2000);
+    }
+}, 5000);
+
+// Cross-Page Submarine Tour
+(() => {
+    const pages = [
+        { url: 'index.html', name: 'Home' },
+        { url: 'creatures.html', name: 'Deep Sea Creatures' },
+        { url: 'cities.html', name: 'Sunken Cities' },
+        { url: 'Shipwrecks.html', name: 'Famous Shipwrecks' },
+        { url: 'reefs.html', name: 'Coral Reefs' },
+        { url: 'save.html', name: 'Save the Ocean' },
+        { url: 'ocean.html', name: 'Ocean Quiz' },
+        { url: 'feedback.html', name: 'Feedback' }
+    ];
+
+    const sub = document.querySelector('.submarine');
+    const startBtn = document.getElementById('startTour');
+    const stopBtn = document.getElementById('stopTour');
+    let tourState = JSON.parse(sessionStorage.getItem('oceanTour') || 'null');
+
+    function sailOnce() {
+        sub.classList.remove('sail');
+        sub.offsetWidth;
+        sub.classList.add('sail');
+    }
+
+    function showOverlay(text) {
+        let ov = document.getElementById('tourOverlay');
+        if (!ov) {
+            ov = document.createElement('div');
+            ov.id = 'tourOverlay';
+            ov.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(0,255,157,0.9),rgba(0,180,100,0.9));color:#000;padding:15px 30px;border-radius:30px;font-family:Orbitron,sans-serif;font-weight:bold;z-index:10000;box-shadow:0 5px 30px rgba(0,255,157,0.5);';
+            document.body.appendChild(ov);
+        }
+        ov.innerHTML = '🚢 Tour: ' + text;
+        ov.style.display = 'block';
+    }
+
+    function hideOverlay() {
+        const ov = document.getElementById('tourOverlay');
+        if (ov) ov.style.display = 'none';
+    }
+
+    if (tourState && tourState.active) {
+        startBtn.style.display = 'none';
+        stopBtn.style.display = 'inline-block';
+        showOverlay(pages[tourState.pageIndex].name);
+        sailOnce();
+
+        const sections = document.querySelectorAll('header, main, .intro-section, .simulation-section, .creatures-grid, .whatif-section, footer');
+        let si = 0;
+
+        function scroll() {
+            if (!JSON.parse(sessionStorage.getItem('oceanTour') || 'null')?.active) { hideOverlay(); return; }
+            if (si < sections.length) {
+                sections[si].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                sailOnce();
+                sections[si].style.outline = '2px solid rgba(0,255,157,.5)';
+                sections[si].style.outlineOffset = '4px';
+                setTimeout(() => { if(sections[si]) sections[si].style.outline = 'none'; }, 1500);
+                si++;
+                setTimeout(scroll, 4500);
+            } else {
+                tourState.pageIndex = (tourState.pageIndex + 1) % pages.length;
+                sessionStorage.setItem('oceanTour', JSON.stringify(tourState));
+                setTimeout(() => { window.location.href = pages[tourState.pageIndex].url; }, 1500);
+            }
+        }
+        setTimeout(scroll, 1000);
+    }
+
+    startBtn?.addEventListener('click', () => {
+        sessionStorage.setItem('oceanTour', JSON.stringify({ active: true, pageIndex: 0 }));
+        window.location.href = 'index.html';
+    });
+
+    stopBtn?.addEventListener('click', () => {
+        sessionStorage.removeItem('oceanTour');
+        startBtn.style.display = 'inline-block';
+        stopBtn.style.display = 'none';
+        hideOverlay();
+    });
+})();
+</script>
+</body>
+</html>

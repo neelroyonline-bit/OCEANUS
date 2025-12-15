@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>Sunken Cities - Oceanus</title>
+    <style>
+        :root {
+            --hull-1: #0b1f2a;
+            --hull-2: #0a1a22;
+            --hud: #00ff9d;
+            --hud-dim: #00b36f;
+            --card: rgba(15, 30, 40, 0.75);
+            --radius: 16px;
+            --shadow: 0 4px 10px rgba(0,0,0,.35);
+            --shadow-lg: 0 18px 40px rgba(0,0,0,.5);
+        }
+        
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'Pirata One', cursive;
+            margin: 0;
+            padding: 0;
+            color: #cde7f5;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(0,255,255,.15), transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(0,255,157,.12), transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(100,0,255,.08), transparent 50%),
+                linear-gradient(180deg, #000814, #001a2e, #000814);
+            overflow-x: hidden;
+            position: relative;
+            font-size: 20px;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(0,255,255,.15) 1px, transparent 1px) 0 0/50px 100%,
+                linear-gradient(0deg, rgba(0,255,255,.15) 1px, transparent 1px) 0 0/100% 50px,
+                linear-gradient(90deg, rgba(0,255,157,.08) 1px, transparent 1px) 0 0/10px 100%,
+                linear-gradient(0deg, rgba(0,255,157,.08) 1px, transparent 1px) 0 0/100% 10px;
+            pointer-events: none;
+            opacity: .4;
+            z-index: 0;
+            animation: grid-scroll 20s linear infinite;
+        }
+        
+        @keyframes grid-scroll {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(50px); }
+        }
+        
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0,255,255,.02) 0px,
+                transparent 1px,
+                transparent 2px,
+                rgba(0,255,255,.02) 3px
+            );
+            pointer-events: none;
+            z-index: 1;
+            animation: scanline 8s linear infinite;
+        }
+        
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+        
+        header {
+            position: relative;
+            background: linear-gradient(180deg, #0f2632, #0a1f29);
+            border-bottom: 2px solid rgba(0,255,157,.25);
+            color: #e7fbff;
+            text-align: center;
+            padding: 24px 16px 16px;
+            box-shadow: var(--shadow-lg);
+            z-index: 2;
+        }
+        
+        header h1 {
+            font-family: 'Orbitron', system-ui, sans-serif;
+            letter-spacing: .05em;
+            color: #ccf7ff;
+            font-size: 3.2rem;
+            margin: 0 0 10px 0;
+            text-shadow: 0 0 12px rgba(0,255,157,.3);
+            animation: fadeInDown 1s ease;
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+        }
+        
+        nav a {
+            background: linear-gradient(180deg, #123241, #0e2a36);
+            color: #cde7f5;
+            padding: 14px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            letter-spacing: .03em;
+            border: 1px solid rgba(0,255,157,.25);
+            box-shadow: inset 0 0 12px rgba(0,255,157,.08), var(--shadow);
+            transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+        }
+        
+        nav a:hover {
+            background: #123543;
+            transform: translateY(-1px);
+            box-shadow: inset 0 0 20px rgba(0,255,157,.15), var(--shadow-lg);
+        }
+        
+        nav a[aria-current="page"] {
+            outline: 2px solid var(--hud-dim);
+            box-shadow: inset 0 0 24px rgba(0,255,157,.22), 0 0 14px rgba(0,255,157,.25);
+        }
+        
+        .tour-btn {
+            background: linear-gradient(180deg, #123241, #0e2a36);
+            color: #cde7f5;
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,255,157,.35);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: inset 0 0 12px rgba(0,255,157,.12), var(--shadow);
+        }
+        .tour-btn:hover {
+            box-shadow: inset 0 0 20px rgba(0,255,157,.22), var(--shadow-lg);
+        }
+        
+        main {
+            position: relative;
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 24px;
+            background: var(--card);
+            border: 1px solid rgba(0,255,157,.18);
+            border-radius: var(--radius);
+            backdrop-filter: blur(4px) saturate(120%);
+            box-shadow: 0 10px 40px rgba(0,0,0,.45);
+            z-index: 1;
+        }
+        
+        h2 {
+            font-family: 'Orbitron', system-ui, sans-serif;
+            color: var(--hud);
+            font-size: 2.6rem;
+            margin: 30px 0 15px 0;
+            text-shadow: 0 0 8px rgba(0,255,157,.3);
+            text-align: center;
+        }
+        
+        .intro-section {
+            background: linear-gradient(135deg, rgba(17,62,58,.7), rgba(12,47,52,.6));
+            border: 1px solid rgba(0,255,157,.2);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .intro-section p {
+            color: #c9ffe9;
+            line-height: 1.8;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        
+        /* City Cards */
+        .cities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .city-card {
+            background: linear-gradient(135deg, rgba(10,35,45,.9), rgba(5,25,35,.8));
+            border: 1px solid rgba(0,255,157,.2);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+        
+        .city-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,255,157,.2);
+        }
+        
+        .city-card.legendary {
+            border-color: rgba(255,215,0,.4);
+            box-shadow: 0 0 20px rgba(255,215,0,.1);
+        }
+        
+        .city-card.legendary::before {
+            content: "⭐ LEGENDARY";
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #000;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: bold;
+            z-index: 2;
+        }
+        
+        .city-card.real::before {
+            content: "✓ CONFIRMED";
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, var(--hud), var(--hud-dim));
+            color: #000;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: bold;
+            z-index: 2;
+        }
+        
+        .city-img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-bottom: 2px solid rgba(0,255,157,.3);
+        }
+        
+        .city-content {
+            padding: 20px;
+        }
+        
+        .city-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--hud);
+            font-size: 1.9rem;
+            margin: 0 0 8px 0;
+        }
+        
+        .city-location {
+            color: #7aa;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        
+        .city-card p {
+            color: #c9ffe9;
+            line-height: 1.7;
+            margin: 0 0 15px 0;
+            font-size: 1.3rem;
+        }
+        
+        .city-facts {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        
+        .fact-badge {
+            background: rgba(0,255,157,.1);
+            border: 1px solid rgba(0,255,157,.3);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--hud);
+        }
+        
+        /* Interactive Map Simulation */
+        .map-section {
+            background: linear-gradient(135deg, rgba(0,20,40,.95), rgba(0,10,25,.95));
+            border: 2px solid rgba(0,255,157,.3);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+        
+        .map-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--hud);
+            font-size: 2rem;
+            margin: 0 0 20px 0;
+            text-align: center;
+        }
+        
+        .world-map {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            background: 
+                linear-gradient(to bottom, rgba(0,24,48,0.7), rgba(0,32,64,0.7)),
+                url('world.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(0,255,157,.2);
+        }
+        
+        .map-overlay {
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0,100,150,.3) 0%, transparent 30%),
+                radial-gradient(circle at 70% 60%, rgba(0,100,150,.3) 0%, transparent 25%),
+                radial-gradient(circle at 50% 80%, rgba(0,100,150,.2) 0%, transparent 20%);
+        }
+        
+        .map-point {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--hud);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: pulse-point 2s ease-in-out infinite;
+        }
+        
+        .map-point::before {
+            content: attr(data-name);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,20,30,0.95);
+            border: 1px solid var(--hud);
+            color: var(--hud);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-family: 'Share Tech Mono', monospace;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            margin-bottom: 5px;
+        }
+        
+        .map-point:hover::before {
+            opacity: 1;
+        }
+        
+        .map-point:hover {
+            transform: scale(1.5);
+            box-shadow: 0 0 30px var(--hud);
+        }
+        
+        .map-point.legendary {
+            background: #ffd700;
+            animation: pulse-gold 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-point {
+            0%, 100% { box-shadow: 0 0 10px var(--hud); }
+            50% { box-shadow: 0 0 25px var(--hud); }
+        }
+        
+        @keyframes pulse-gold {
+            0%, 100% { box-shadow: 0 0 10px #ffd700; }
+            50% { box-shadow: 0 0 25px #ffd700; }
+        }
+        
+        .map-info {
+            background: rgba(0,0,0,.5);
+            border: 1px solid rgba(0,255,157,.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            min-height: 80px;
+        }
+        
+        .map-info h4 {
+            color: var(--hud);
+            margin: 0 0 10px 0;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .map-info p {
+            color: #c9ffe9;
+            margin: 0;
+            font-size: 1.3rem;
+        }
+        
+        /* What-If Section */
+        .whatif-section {
+            background: rgba(0,0,0,.3);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .whatif-title {
+            font-family: 'Orbitron', sans-serif;
+            color: #ff6b6b;
+            font-size: 1.3rem;
+            margin: 0 0 15px 0;
+        }
+        
+        .whatif-scenario {
+            background: rgba(255,100,100,.1);
+            border-left: 4px solid #ff6b6b;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+        }
+        
+        .whatif-scenario h4 {
+            color: #ff9999;
+            margin: 0 0 10px 0;
+        }
+        
+        .whatif-scenario p {
+            color: #c9ffe9;
+            margin: 0;
+            line-height: 1.7;
+        }
+        
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--hud), var(--hud-dim));
+            transform: translateX(-50%);
+        }
+        
+        .timeline-item {
+            display: flex;
+            justify-content: flex-end;
+            padding: 10px 40px 10px 0;
+            position: relative;
+            width: 50%;
+        }
+        
+        .timeline-item:nth-child(even) {
+            justify-content: flex-start;
+            padding: 10px 0 10px 40px;
+            margin-left: 50%;
+        }
+        
+        .timeline-content {
+            background: rgba(0,255,157,.1);
+            border: 1px solid rgba(0,255,157,.3);
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 300px;
+        }
+        
+        .timeline-year {
+            color: var(--hud);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.6rem;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-text {
+            color: #c9ffe9;
+            font-size: 1.2rem;
+        }
+        
+        footer {
+            background: linear-gradient(180deg, #0a1e27, #08171f);
+            color: #bdefff;
+            text-align: center;
+            padding: 18px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(0,255,157,.2);
+        }
+        
+        footer p { margin: 0; }
+        
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(0,255,157,.4), transparent);
+            margin: 30px 0;
+        }
+        
+        /* Animations */
+        .bubbles {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bubbles span {
+            position: absolute;
+            bottom: -80px;
+            width: 10px; height: 10px;
+            background: radial-gradient(circle at 30% 30%, #cffff0, rgba(200,255,240,.15));
+            border-radius: 50%;
+            animation: rise linear infinite;
+            opacity: .6;
+        }
+        @keyframes rise {
+            from { transform: translateY(0) translateX(0) scale(1); }
+            to   { transform: translateY(-110vh) translateX(-30px) scale(1.2); }
+        }
+        
+        .sonar {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at center, rgba(0,255,157,.15) 0 40%, transparent 41%),
+                radial-gradient(circle at center, rgba(0,255,157,.08) 0 70%, transparent 71%),
+                radial-gradient(circle at center, rgba(0,255,157,.05) 0 99%, transparent 100%),
+                conic-gradient(from 0deg, rgba(0,255,157,0) 0 85%, rgba(0,255,157,.45) 86% 92%, rgba(0,255,157,0) 93% 100%);
+            border: 2px solid rgba(0,255,157,.35);
+            box-shadow: 0 0 30px rgba(0,255,157,.25);
+            animation: sweep 3.5s linear infinite;
+            z-index: 3;
+        }
+        @keyframes sweep { to { transform: rotate(360deg); } }
+        
+        .submarine {
+            position: fixed;
+            left: -200px;
+            top: 55%;
+            width: 180px;
+            height: 70px;
+            transform: translateY(-50%);
+            filter: drop-shadow(0 0 25px rgba(0,255,255,.5)) drop-shadow(0 10px 20px rgba(0,255,157,.3));
+            opacity: .95;
+            z-index: 4;
+            pointer-events: none;
+        }
+        .submarine.sail { animation: sail-across 6s ease-in-out forwards; }
+        .submarine .prop { transform-origin: 165px 35px; animation: spin 0.15s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes sail-across {
+            0%   { left: -200px; transform: translateY(-50%) rotate(0deg); }
+            50%  { left: calc(50% - 90px); transform: translateY(-50%) rotate(0deg); }
+            100% { left: calc(100% + 220px); transform: translateY(-50%) rotate(2deg); }
+        }
+        
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.4rem; }
+            h2 { font-size: 2rem; }
+            .world-map { height: 300px; }
+            .timeline::before { left: 20px; }
+            .timeline-item, .timeline-item:nth-child(even) {
+                width: 100%;
+                margin-left: 0;
+                padding: 10px 0 10px 50px;
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bubbles" aria-hidden="true">
+    <span style="left:5%;  animation-duration: 16s; animation-delay: -2s;"></span>
+    <span style="left:15%; animation-duration: 18s; animation-delay: -6s;"></span>
+    <span style="left:28%; animation-duration: 20s; animation-delay: -12s; width:14px; height:14px;"></span>
+    <span style="left:38%; animation-duration: 22s; animation-delay: -4s;"></span>
+    <span style="left:50%; animation-duration: 17s; animation-delay: -9s;"></span>
+    <span style="left:63%; animation-duration: 19s; animation-delay: -3s; width:12px; height:12px;"></span>
+    <span style="left:72%; animation-duration: 23s; animation-delay: -14s;"></span>
+    <span style="left:81%; animation-duration: 21s; animation-delay: -7s;"></span>
+    <span style="left:90%; animation-duration: 24s; animation-delay: -11s; width:16px; height:16px;"></span>
+</div>
+
+<div class="sonar" aria-hidden="true"></div>
+
+<div class="submarine" aria-hidden="true">
+    <svg width="180" height="70" viewBox="0 0 180 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="futuristicHull" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="#00ffff" stop-opacity=".6"/>
+                <stop offset="0.5" stop-color="#00ff9d" stop-opacity=".8"/>
+                <stop offset="1" stop-color="#0080ff" stop-opacity=".6"/>
+            </linearGradient>
+            <linearGradient id="glowAccent" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0" stop-color="#00ffff"/>
+                <stop offset="1" stop-color="#00ff9d"/>
+            </linearGradient>
+        </defs>
+        <path d="M20,35 L90,20 L140,25 L160,35 L140,45 L90,50 L20,35 Z" fill="url(#futuristicHull)" opacity=".7"/>
+        <path d="M20,35 L90,20 L140,25 L160,35 L140,45 L90,50 L20,35 Z" stroke="#00ffff" stroke-width="1.5" fill="none" opacity=".9"/>
+        <ellipse cx="70" cy="35" rx="18" ry="12" fill="rgba(0,255,255,.3)" stroke="#00ffff" stroke-width="2"/>
+        <ellipse cx="70" cy="35" rx="12" ry="8" fill="rgba(0,255,255,.5)"/>
+        <rect x="45" y="32" width="8" height="6" fill="#00ff9d" opacity=".8"/>
+        <rect x="85" y="30" width="10" height="4" fill="#00ffff" opacity=".7"/>
+        <rect x="100" y="32" width="6" height="5" fill="#00ff9d" opacity=".8"/>
+        <rect x="155" y="30" width="8" height="4" rx="1" fill="url(#glowAccent)" opacity=".9"/>
+        <rect x="155" y="36" width="8" height="4" rx="1" fill="url(#glowAccent)" opacity=".9"/>
+        <g class="prop">
+            <line x1="165" y1="35" x2="175" y2="30" stroke="#00ffff" stroke-width="2" opacity=".9"/>
+            <line x1="165" y1="35" x2="175" y2="40" stroke="#00ffff" stroke-width="2" opacity=".9"/>
+            <circle cx="165" cy="35" r="3" fill="#00ff9d"/>
+        </g>
+        <circle cx="30" cy="35" r="2" fill="#00ffff" opacity=".9"/>
+        <circle cx="120" cy="33" r="1.5" fill="#00ff9d" opacity=".9"/>
+        <circle cx="135" cy="37" r="1.5" fill="#00ffff" opacity=".9"/>
+        <path d="M75,20 L80,10 L85,20 Z" fill="url(#glowAccent)" opacity=".7" stroke="#00ffff" stroke-width="1"/>
+    </svg>
+</div>
+
+<header>
+    <h1>Submarine Log: Sunken Cities</h1>
+    <nav aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="creatures.html">Deep Sea Creatures</a>
+        <a href="cities.html" aria-current="page">Sunken Cities</a>
+        <a href="Shipwrecks.html">Famous Shipwrecks</a>
+        <a href="reefs.html">Coral Reefs</a>
+        <a href="save.html">Save the Ocean</a>
+        <a href="feedback.html">Feedback and About</a>
+        <a href="ocean.html">A Short Quiz</a>
+        <button id="startTour" type="button" class="tour-btn">Start Submarine Tour</button>
+        <button id="stopTour" type="button" class="tour-btn" style="display:none;">Stop</button>
+    </nav>
+</header>
+
+<main>
+    <div class="intro-section">
+        <p>
+            🏛️ Throughout history, mighty cities have vanished beneath the waves — some through natural disasters, 
+            others through rising sea levels, and some exist only in legend. From the mythical Atlantis to real 
+            underwater ruins, these sunken cities hold secrets of ancient civilizations waiting to be discovered.
+        </p>
+    </div>
+    
+    <!-- Interactive Map -->
+    <div class="map-section">
+        <h3 class="map-title">🗺️ Interactive Sunken Cities Map</h3>
+        <p style="text-align: center; color: #7aa; margin-bottom: 15px;">Click on the markers to learn about each city</p>
+        
+        <div class="world-map" id="worldMap">
+            <div class="map-overlay"></div>
+            <!-- Map points positioned on world map: left=longitude (0%=far west, 100%=far east), top=latitude (0%=north, 100%=south) -->
+            <!-- Atlantis - Atlantic Ocean (legendary, approximate mid-Atlantic) -->
+            <div class="map-point legendary" style="left: 28%; top: 45%;" data-name="Atlantis" data-info="The legendary island civilization described by Plato. Said to have sunk in a single day and night of catastrophe around 9,600 BC. Location unknown — theories range from the Mediterranean to Antarctica."></div>
+            <!-- Heracleion - Egypt, Mediterranean coast -->
+            <div class="map-point real" style="left: 54%; top: 48%;" data-name="Heracleion" data-info="Ancient Egyptian port city discovered in 2000 in Abu Qir Bay. Founded around 8th century BC, sunk due to earthquakes and rising seas. Contains temples, statues, and over 60 ancient shipwrecks."></div>
+            <!-- Dwarka - Western India, Gujarat coast -->
+            <div class="map-point real" style="left: 64%; top: 52%;" data-name="Dwarka" data-info="Ancient city off the coast of Gujarat, India. Believed to be Lord Krishna's legendary kingdom. Underwater ruins date back to 15,000 BC — among the oldest submerged structures ever found."></div>
+            <!-- Yonaguni - Southern Japan, Ryukyu Islands -->
+            <div class="map-point real" style="left: 82%; top: 50%;" data-name="Yonaguni" data-info="Mysterious underwater monument near Japan. 10,000 years old with step-like terraces. Debate continues: natural formation or man-made pyramid? Some believe it's evidence of a lost civilization."></div>
+            <!-- Pavlopetri - Southern Greece -->
+            <div class="map-point real" style="left: 52%; top: 46%;" data-name="Pavlopetri" data-info="World's oldest submerged city off Greece, dating to 5,000 years ago. Complete Bronze Age city with streets, buildings, and tombs. Sank due to earthquakes around 1,000 BC."></div>
+            <!-- Port Royal - Jamaica, Caribbean -->
+            <div class="map-point real" style="left: 22%; top: 52%;" data-name="Port Royal" data-info="The 'wickedest city on Earth' — a pirate haven in Jamaica that sank during a 1692 earthquake. 2,000 people died instantly. Now a underwater archaeological site preserving 17th-century life."></div>
+        </div>
+        
+        <div class="map-info" id="mapInfo">
+            <h4>👆 Click a marker to explore</h4>
+            <p>Discover the secrets of legendary and real sunken cities from around the world.</p>
+        </div>
+    </div>
+    
+    <h2>Featured Sunken Cities</h2>
+    <div class="cities-grid">
+        <div class="city-card legendary">
+            <img src="https://www.americanexpress.com/en-us/travel/discover/photos/20475/10968/1600/Atlantis_CW0A148216X9.jpg?ch=560" alt="Atlantis concept" class="city-img">
+            <div class="city-content">
+                <h3>🔱 Atlantis</h3>
+                <div class="city-location">📍 Location Unknown (Atlantic Ocean?)</div>
+                <p>The most famous lost city in history! Described by Plato as a powerful naval empire that sank "in a single day and night of misfortune" around 9,600 BC. Advanced technology, concentric rings of water, and walls covered in precious metals.</p>
+                <div class="city-facts">
+                    <span class="fact-badge">📅 ~9,600 BC</span>
+                    <span class="fact-badge">📖 Plato's dialogues</span>
+                    <span class="fact-badge">❓ Myth or reality?</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="city-card real">
+            <img src="https://telegrafi.com/media-library/2021-07-thonis-heracleion-a-png.png?id=57880620&width=1245&height=700&coordinates=0%2C9%2C0%2C10" alt="Underwater ruins" class="city-img">
+            <div class="city-content">
+                <h3>🏺 Heracleion (Thonis)</h3>
+                <div class="city-location">📍 Abu Qir Bay, Egypt</div>
+                <p>Lost for 1,200 years until discovered in 2000! This ancient Egyptian port was the gateway to Egypt. Giant statues, temples to Amun, and 64 ancient ships lie preserved in the sediment. Helen of Troy reportedly visited here!</p>
+                <div class="city-facts">
+                    <span class="fact-badge">📅 8th century BC</span>
+                    <span class="fact-badge">🌊 30ft underwater</span>
+                    <span class="fact-badge">🔍 Found in 2000</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="city-card real">
+            <img src="https://www.savaari.com/blog/wp-content/uploads/2023/02/dwarka-under-water-feature-InMarathi.jpg" alt="Dwarka underwater" class="city-img">
+            <div class="city-content">
+                <h3>🕉️ Dwarka</h3>
+                <div class="city-location">📍 Gulf of Cambay, India</div>
+                <p>The legendary kingdom of Lord Krishna! Ancient texts describe a golden city with 900,000 royal palaces. Underwater surveys found structures dating back 9,500 years — possibly the oldest submerged city on Earth.</p>
+                <div class="city-facts">
+                    <span class="fact-badge">📅 ~9,500 years old</span>
+                    <span class="fact-badge">📖 Hindu mythology</span>
+                    <span class="fact-badge">🏛️ Stone structures</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="city-card real">
+            <img src="https://static.wixstatic.com/media/88bee9_b647153583324e8a93e3fd77f0c68fce.gif" alt="Yonaguni Monument" class="city-img">
+            <div class="city-content">
+                <h3>🗿 Yonaguni Monument</h3>
+                <div class="city-location">📍 Ryukyu Islands, Japan</div>
+                <p>Discovered in 1987, this mysterious underwater structure features massive stone terraces, pillars, and what appears to be a carved human face. Natural or man-made? The debate rages on. If artificial, it predates the Egyptian pyramids!</p>
+                <div class="city-facts">
+                    <span class="fact-badge">📅 ~10,000 years old</span>
+                    <span class="fact-badge">🌊 25m deep</span>
+                    <span class="fact-badge">❓ Controversial</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="city-card real">
+            <img src="https://whc.unesco.org/uploads/thumbs/site_1595_0001-1200-630-20250616161849.jpg" alt="Port Royal" class="city-img">
+            <div class="city-content">
+                <h3>🏴‍☠️ Port Royal</h3>
+                <div class="city-location">📍 Kingston Harbour, Jamaica</div>
+                <p>The "wickedest city on Earth" — a haven for pirates, prostitutes, and privateers. In 1692, a catastrophic earthquake caused 2/3 of the city to slide into the sea, killing 2,000 instantly. Now a perfectly preserved 17th-century time capsule.</p>
+                <div class="city-facts">
+                    <span class="fact-badge">📅 Sank 1692</span>
+                    <span class="fact-badge">🏴‍☠️ Pirate capital</span>
+                    <span class="fact-badge">⚓ 40ft underwater</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="city-card real">
+            <img src="https://www.xpatathens.com/timthumb.php?src=/media/k2/items/cache/d8794a67ae1824f707399985a6ec7b71_L.jpg&w=750&h=430&zc=1&q=95" alt="Pavlopetri" class="city-img">
+            <div class="city-content">
+                <h3>🏛️ Pavlopetri</h3>
+                <div class="city-location">📍 Laconia, Greece</div>
+                <p>The world's oldest submerged city! A complete Bronze Age town with 15 buildings, streets, and tombs dating to 5,000 years ago. It's the only underwater site where you can see an entire city plan — streets and all!</p>
+                <div class="city-facts">
+                    <span class="fact-badge">📅 ~3,000 BC</span>
+                    <span class="fact-badge">🌊 3-4m deep</span>
+                    <span class="fact-badge">🗺️ Complete city plan</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- What-If Section -->
+    <div class="whatif-section">
+        <h3 class="whatif-title">🤔 WHAT IF Scenarios</h3>
+        
+        <div class="whatif-scenario">
+            <h4>What if Atlantis was real and we found it?</h4>
+            <p>It would rewrite human history! Plato described Atlantis as more advanced than ancient Greece — with hot and cold running water, advanced architecture, and powerful technology. Finding it would prove advanced civilizations existed 11,000+ years ago, predating our earliest known cities by millennia.</p>
+        </div>
+        
+        <div class="whatif-scenario">
+            <h4>What if sea levels continue rising?</h4>
+            <p>Within 100 years, major coastal cities could join the list of sunken cities! Miami, New York, Shanghai, Mumbai, and London could face the same fate as Dwarka and Port Royal. By 2100, 200+ million people may be displaced by rising seas.</p>
+        </div>
+        
+        <div class="whatif-scenario">
+            <h4>What if we could drain the Mediterranean for a day?</h4>
+            <p>We would find thousands of sunken cities, ships, and artifacts! The Mediterranean has been a hub of civilization for 10,000+ years. Ancient ports, trading vessels, and entire civilizations lie preserved in its depths. It would be the greatest archaeological discovery in history.</p>
+        </div>
+    </div>
+    
+    <h2>Timeline of Submergence</h2>
+    <div class="timeline">
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <div class="timeline-year">~9,600 BC</div>
+                <div class="timeline-text">Atlantis allegedly sinks (according to Plato)</div>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <div class="timeline-year">~8,000 BC</div>
+                <div class="timeline-text">Dwarka submerged by rising sea levels</div>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <div class="timeline-year">~1,000 BC</div>
+                <div class="timeline-text">Pavlopetri sinks after earthquakes</div>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <div class="timeline-year">8th century AD</div>
+                <div class="timeline-text">Heracleion submerged by earthquakes</div>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-content">
+                <div class="timeline-year">1692 AD</div>
+                <div class="timeline-text">Port Royal destroyed by earthquake</div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<hr/>
+<footer>
+    <p>Created by Kingsuk Maiti, Gourav Poddar,Neel Roy and Rohan Saha.</p>
+</footer>
+
+<script>
+// Interactive Map
+const mapPoints = document.querySelectorAll('.map-point');
+const mapInfo = document.getElementById('mapInfo');
+
+mapPoints.forEach(point => {
+    point.addEventListener('click', function() {
+        const name = this.dataset.name;
+        const info = this.dataset.info;
+        const isLegendary = this.classList.contains('legendary');
+        
+        mapInfo.innerHTML = `
+            <h4>${isLegendary ? '⭐' : '✓'} ${name}</h4>
+            <p>${info}</p>
+        `;
+        
+        // Highlight selected point
+        mapPoints.forEach(p => p.style.transform = 'scale(1)');
+        this.style.transform = 'scale(1.8)';
+    });
+});
+
+// Cross-Page Submarine Tour
+(() => {
+    const pages = [
+        { url: 'index.html', name: 'Home' },
+        { url: 'creatures.html', name: 'Deep Sea Creatures' },
+        { url: 'cities.html', name: 'Sunken Cities' },
+        { url: 'Shipwrecks.html', name: 'Famous Shipwrecks' },
+        { url: 'reefs.html', name: 'Coral Reefs' },
+        { url: 'save.html', name: 'Save the Ocean' },
+        { url: 'ocean.html', name: 'Ocean Quiz' },
+        { url: 'feedback.html', name: 'Feedback' }
+    ];
+
+    const sub = document.querySelector('.submarine');
+    const startBtn = document.getElementById('startTour');
+    const stopBtn = document.getElementById('stopTour');
+    let tourState = JSON.parse(sessionStorage.getItem('oceanTour') || 'null');
+
+    function sailOnce() { sub.classList.remove('sail'); sub.offsetWidth; sub.classList.add('sail'); }
+
+    function showOverlay(text) {
+        let ov = document.getElementById('tourOverlay');
+        if (!ov) {
+            ov = document.createElement('div');
+            ov.id = 'tourOverlay';
+            ov.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(0,255,157,0.9),rgba(0,180,100,0.9));color:#000;padding:15px 30px;border-radius:30px;font-family:Orbitron,sans-serif;font-weight:bold;z-index:10000;box-shadow:0 5px 30px rgba(0,255,157,0.5);';
+            document.body.appendChild(ov);
+        }
+        ov.innerHTML = '🚢 Tour: ' + text; ov.style.display = 'block';
+    }
+
+    function hideOverlay() { const ov = document.getElementById('tourOverlay'); if (ov) ov.style.display = 'none'; }
+
+    if (tourState && tourState.active) {
+        startBtn.style.display = 'none'; stopBtn.style.display = 'inline-block';
+        showOverlay(pages[tourState.pageIndex].name); sailOnce();
+        const sections = document.querySelectorAll('header, main, .map-section, .cities-grid, .whatif-section, .timeline, footer');
+        let si = 0;
+        function scroll() {
+            if (!JSON.parse(sessionStorage.getItem('oceanTour') || 'null')?.active) { hideOverlay(); return; }
+            if (si < sections.length) {
+                sections[si].scrollIntoView({ behavior: 'smooth', block: 'start' }); sailOnce();
+                sections[si].style.outline = '2px solid rgba(0,255,157,.5)'; sections[si].style.outlineOffset = '4px';
+                setTimeout(() => { if(sections[si]) sections[si].style.outline = 'none'; }, 1500);
+                si++; setTimeout(scroll, 4500);
+            } else {
+                tourState.pageIndex = (tourState.pageIndex + 1) % pages.length;
+                sessionStorage.setItem('oceanTour', JSON.stringify(tourState));
+                setTimeout(() => { window.location.href = pages[tourState.pageIndex].url; }, 1500);
+            }
+        }
+        setTimeout(scroll, 1000);
+    }
+
+    startBtn?.addEventListener('click', () => { sessionStorage.setItem('oceanTour', JSON.stringify({ active: true, pageIndex: 0 })); window.location.href = 'index.html'; });
+    stopBtn?.addEventListener('click', () => { sessionStorage.removeItem('oceanTour'); startBtn.style.display = 'inline-block'; stopBtn.style.display = 'none'; hideOverlay(); });
+})();
+</script>
+</body>
+</html>

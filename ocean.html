@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ocean Mystery Deep-Dive Quiz</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load an appropriate font for a mysterious/digital look -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'deep-blue': '#0a192f',
+                        'accent-cyan': '#00ff9d',
+                        'accent-dark': '#00b36f',
+                        'correct-green': '#10b981',
+                        'incorrect-red': '#ef4444',
+                    },
+                    fontFamily: {
+                        mono: ['"Share Tech Mono"', 'monospace'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'glow': '0 0 15px rgba(0, 255, 157, 0.7)',
+                        'inner-glow': 'inset 0 0 8px rgba(0, 255, 157, 0.5)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar style for dark theme */
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #0b1f2a;
+            background-image:
+                radial-gradient(1200px 800px at 20% 10%, rgba(0,255,157,.06), transparent 60%),
+                radial-gradient(1000px 600px at 80% 0%, rgba(0,180,255,.06), transparent 60%),
+                linear-gradient(180deg, #0b1f2a, #0a1a22);
+            color: #e5e7eb;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            overflow-x: hidden;
+            font-size: 20px;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient( to right, rgba(255,255,255,.07) 1px, transparent 1px ) 0 0/120px 100%,
+                linear-gradient( to bottom, rgba(255,255,255,.05) 1px, transparent 1px ) 0 0/100% 120px,
+                radial-gradient(circle at 30px 30px, rgba(255,255,255,.12) 2px, transparent 2px) 0 0/120px 120px;
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            opacity: .25;
+            z-index: 0;
+        }
+        .quiz-container {
+            max-width: 600px;
+            width: 100%;
+            background-color: rgba(15, 30, 40, 0.75);
+            border: 2px solid #00ff9d;
+            box-shadow: 0 0 30px rgba(0, 255, 157, 0.5);
+            animation: pulse-border 5s infinite alternate;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(4px) saturate(120%);
+        }
+
+        @keyframes pulse-border {
+            0% { border-color: #00ff9d; }
+            100% { border-color: #00b36f; }
+        }
+
+        .option-button {
+            transition: all 0.2s;
+        }
+        
+        /* State specific styles */
+        .option-correct {
+            background-color: #10b981 !important; /* Tailwind green-500 */
+            border-color: #059669 !important; /* Tailwind green-600 */
+        }
+        .option-incorrect {
+            background-color: #ef4444 !important; /* Tailwind red-500 */
+            border-color: #dc2626 !important; /* Tailwind red-600 */
+        }
+        .option-disabled {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+        .result-score {
+            text-shadow: 0 0 10px #00ff9d;
+        }
+   nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+        }
+        
+        nav a {
+            background: linear-gradient(180deg, #123241, #0e2a36);
+            color: #cde7f5;
+            padding: 14px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            letter-spacing: .03em;
+            border: 1px solid rgba(0,255,157,.25);
+            box-shadow: inset 0 0 12px rgba(0,255,157,.08), 0 4px 10px rgba(0,0,0,.35);
+            transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+        }
+        
+        nav a:hover {
+            background: #123543;
+            transform: translateY(-1px);
+            box-shadow: inset 0 0 20px rgba(0,255,157,.15), 0 10px 24px rgba(0,0,0,.5);
+        }
+        
+        nav a:focus-visible {
+            outline: 3px solid #00ff9d;
+            outline-offset: 2px;
+        }
+        
+        nav a[aria-current="page"] {
+            outline: 2px solid #00b36f;
+            box-shadow: inset 0 0 24px rgba(0,255,157,.22), 0 0 14px rgba(0,255,157,.25);
+        }
+        .tour-btn {
+            background: linear-gradient(180deg, #123241, #0e2a36);
+            color: #cde7f5;
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,255,157,.35);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: .03em;
+            cursor: pointer;
+            box-shadow: inset 0 0 12px rgba(0,255,157,.12), 0 4px 10px rgba(0,0,0,.35);
+        }
+        .tour-btn:hover {
+            box-shadow: inset 0 0 20px rgba(0,255,157,.22), 0 10px 24px rgba(0,0,0,.5);
+        }
+ header {
+            position: relative;
+            background: linear-gradient(180deg, #0f2632, #0a1f29);
+            border-bottom: 2px solid rgba(0,255,157,.25);
+            color: #e7fbff;
+            text-align: center;
+            padding: 24px 16px 16px;
+            box-shadow: 0 18px 40px rgba(0,0,0,.5);
+            z-index: 2;
+        }
+        
+        header h1 {
+            font-family: 'Orbitron', system-ui, sans-serif;
+            letter-spacing: .05em;
+            color: #ccf7ff;
+            font-size: 3.2rem;
+            margin: 0 0 10px 0;
+            text-shadow: 0 0 12px rgba(0,255,157,.3);
+            animation: fadeInDown 1s ease;
+        }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .submarine {
+            position: fixed;
+            left: -180px;
+            top: 55%;
+            width: 160px;
+            height: 64px;
+            transform: translateY(-50%);
+            filter: drop-shadow(0 10px 18px rgba(0,255,157,.25));
+            opacity: .95;
+            z-index: 4;
+            pointer-events: none;
+        }
+        .submarine.sail {
+            animation: sail-across 6s ease-in-out forwards;
+        }
+        .submarine .prop {
+            transform-origin: 134px 34px;
+            animation: spin 0.2s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes sail-across {
+            0%   { left: -180px; transform: translateY(-50%) rotate(0deg); }
+            50%  { left: calc(50% - 80px); transform: translateY(-50%) rotate(0deg); }
+            100% { left: calc(100% + 200px); transform: translateY(-50%) rotate(2deg); }
+        }
+        
+        .bubbles {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bubbles span {
+            position: absolute;
+            bottom: -80px;
+            width: 10px; height: 10px;
+            background: radial-gradient(circle at 30% 30%, #cffff0, rgba(200,255,240,.15));
+            border-radius: 50%;
+            filter: blur(.2px);
+            animation: rise linear infinite;
+            opacity: .6;
+        }
+        @keyframes rise {
+            from { transform: translateY(0) translateX(0) scale(1); }
+            to   { transform: translateY(-110vh) translateX(-30px) scale(1.2); }
+        }
+        
+        .sonar {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at center, rgba(0,255,157,.15) 0 40%, transparent 41%),
+                radial-gradient(circle at center, rgba(0,255,157,.08) 0 70%, transparent 71%),
+                radial-gradient(circle at center, rgba(0,255,157,.05) 0 99%, transparent 100%),
+                conic-gradient(from 0deg, rgba(0,255,157,0) 0 85%, rgba(0,255,157,.45) 86% 92%, rgba(0,255,157,0) 93% 100%);
+            border: 2px solid rgba(0,255,157,.35);
+            box-shadow: 0 0 30px rgba(0,255,157,.25), inset 0 0 20px rgba(0,255,157,.2);
+            animation: sweep 3.5s linear infinite;
+            z-index: 3;
+        }
+        @keyframes sweep { to { transform: rotate(360deg); } }
+        
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.4rem; }
+        }
+        
+        main {
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+    </style>
+
+    <div class="bubbles">
+      <span style="left:5%;  animation-duration: 16s; animation-delay: -2s;"></span>
+      <span style="left:15%; animation-duration: 18s; animation-delay: -6s;"></span>
+      <span style="left:28%; animation-duration: 20s; animation-delay: -12s; width:14px; height:14px;"></span>
+      <span style="left:38%; animation-duration: 22s; animation-delay: -4s;"></span>
+      <span style="left:50%; animation-duration: 17s; animation-delay: -9s;"></span>
+      <span style="left:63%; animation-duration: 19s; animation-delay: -3s; width:12px; height:12px;"></span>
+      <span style="left:72%; animation-duration: 23s; animation-delay: -14s;"></span>
+      <span style="left:81%; animation-duration: 21s; animation-delay: -7s;"></span>
+      <span style="left:90%; animation-duration: 24s; animation-delay: -11s; width:16px; height:16px;"></span>
+    </div>
+
+    <div class="sonar" aria-hidden="true"></div>
+
+    <div class="submarine" aria-hidden="true">
+      <svg width="160" height="64" viewBox="0 0 160 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="hull" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" stop-color="#89fbd1" stop-opacity=".25"/>
+            <stop offset="1" stop-color="#00ff9d" stop-opacity=".55"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="80" cy="34" rx="62" ry="20" fill="url(#hull)" opacity=".45"/>
+        <rect x="110" y="24" width="22" height="20" rx="2" fill="#00ff9d" opacity=".35"/>
+        <circle cx="58" cy="34" r="8" stroke="#cffff0" stroke-opacity=".9" stroke-width="3" fill="rgba(0,30,40,.6)"/>
+        <circle cx="80" cy="34" r="8" stroke="#cffff0" stroke-opacity=".9" stroke-width="3" fill="rgba(0,30,40,.6)"/>
+        <circle cx="102" cy="34" r="8" stroke="#cffff0" stroke-opacity=".9" stroke-width="3" fill="rgba(0,30,40,.6)"/>
+        <rect x="72" y="12" width="8" height="10" rx="2" fill="#00ff9d" opacity=".6"/>
+        <circle class="prop" cx="134" cy="34" r="6" stroke="#89fbd1" stroke-width="2" opacity=".8"/>
+      </svg>
+    </div>
+
+    <header>
+        <h1>Submarine Log: Deep-Dive Quiz</h1>
+        <nav aria-label="Primary">
+            <a href="index.html">Home</a>
+            <a href="creatures.html">Deep sea creatures</a>
+            <a href="cities.html">Sunken Cities</a>
+            <a href="Shipwrecks.html">Famous Shipwrecks</a>
+            <a href="reefs.html">Coral Reefs</a>
+            <a href="save.html">Save the ocean</a>
+            <a href="feedback.html">Feedback and About</a>
+<a href="ocean.html" aria-current="page">a short quiz</a>
+           <button id="startTour" type="button" class="tour-btn">Start Submarine Tour</button>
+           <button id="stopTour" type="button" class="tour-btn" style="display:none;">Stop</button>
+        </nav>
+ </header>  
+
+    <main>
+        <div id="quiz-app" class="quiz-container p-6 sm:p-8 rounded-xl">
+        <h1 class="text-4xl sm:text-5xl font-mono text-center mb-6 text-accent-cyan tracking-wider border-b-2 border-accent-cyan pb-3">
+            DEEP DIVE
+        </h1>
+        <p class="text-center mb-8 text-lg text-gray-400">
+            A Descent into Ocean Mystery
+        </p>
+
+        <!-- Quiz Content Area -->
+        <div id="quiz-content">
+            <!-- Question Number & Progress Bar -->
+            <div class="mb-6">
+                <div id="question-index" class="text-xl font-bold text-gray-300 mb-2"></div>
+                <div class="w-full bg-gray-700 rounded-full h-2.5">
+                    <div id="progress-bar" class="bg-accent-cyan h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Question Text -->
+            <p id="question-text" class="text-xl sm:text-2xl font-sans font-semibold mb-6 p-4 bg-gray-800 rounded-lg border-l-4 border-accent-cyan shadow-inner-glow">
+                Loading mystery coordinates...
+            </p>
+
+            <!-- Options Grid -->
+            <div id="options-container" class="grid grid-cols-1 gap-4">
+                <!-- Options will be injected here -->
+            </div>
+
+            <!-- Feedback Message -->
+            <div id="feedback-message" class="text-center text-lg mt-6 font-bold h-6"></div>
+
+            <!-- Navigation Button -->
+            <button 
+                id="next-button" 
+                onclick="nextQuestion()" 
+                disabled
+                class="mt-8 w-full py-3 rounded-xl bg-accent-dark text-white font-bold uppercase tracking-wider shadow-md opacity-60 transition duration-300 hover:bg-accent-cyan hover:opacity-100 disabled:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                Next Dive Site
+            </button>
+        </div>
+
+        <!-- Results Screen (Initially Hidden) -->
+        <div id="results-screen" class="hidden text-center">
+            <h2 class="text-4xl font-mono text-accent-cyan mb-4">DECOMPRESSION COMPLETE</h2>
+            <p class="text-xl text-gray-300 mb-6">Your exploration report is ready.</p>
+            
+            <div class="p-8 bg-gray-800 rounded-lg shadow-glow mx-auto max-w-sm">
+                <p class="text-5xl font-mono result-score mb-2" id="final-score">0/5</p>
+                <p class="text-lg text-gray-400">Correct Answers</p>
+            </div>
+
+            <div id="result-message" class="text-2xl font-heading mt-6"></div>
+
+            <button 
+                onclick="restartQuiz()" 
+                class="mt-8 w-full py-3 rounded-xl bg-accent-cyan text-deep-blue font-bold uppercase tracking-wider shadow-md transition duration-300 hover:bg-white"
+            >
+                Start New Expedition
+            </button>
+        </div>
+    </div>
+    </main>
+
+    <footer>
+        <div class="bg-gray-900 border-t border-accent-cyan p-8 text-center">
+            <p>created by Gourav poddar, Kingsuk Maiti,Neel Roy and Rohan Saha</p>
+            
+
+    <script>
+        // --- QUIZ DATA ---
+        const quizData = [
+            {
+                question: "What is the deepest known point in the Earth's oceans, located in the Mariana Trench?",
+                options: ["Puerto Rico Trench", "Tonga Trench", "Challenger Deep", "Diamantina Fracture Zone"],
+                answer: "Challenger Deep"
+            },
+            {
+                question: "What highly pressurized and bioluminescent deep-sea fish is characterized by its large mouth and angler-like dorsal spine?",
+                options: ["Viperfish", "Anglerfish", "Coelacanth", "Goblin Shark"],
+                answer: "Anglerfish"
+            },
+            {
+                question: "Which famous 20th-century luxury liner, sunk in 1912, lies approximately 3,800 meters beneath the North Atlantic surface?",
+                options: ["Lusitania", "Britannic", "Titanic", "Queen Mary"],
+                answer: "Titanic"
+            },
+            {
+                question: "What is the zone of the ocean, lying below about 1,000 meters, where no sunlight penetrates?",
+                options: ["Epipelagic Zone", "Mesopelagic Zone", "Bathyal Zone", "Abyssal Zone"],
+                answer: "Abyssal Zone"
+            },
+            {
+                question: "Which massive, deep-sea squid, rarely observed, is known for having the largest eyes of any known animal?",
+                options: ["Colossal Squid", "Humboldt Squid", "Vampire Squid", "Giant Squid (Architeuthis dux)"],
+                answer: "Giant Squid (Architeuthis dux)"
+            },
+        ];
+
+        // --- STATE VARIABLES ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+
+        // --- DOM REFERENCES ---
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const nextButton = document.getElementById('next-button');
+        const questionIndexDiv = document.getElementById('question-index');
+        const progressBar = document.getElementById('progress-bar');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const quizContent = document.getElementById('quiz-content');
+        const resultsScreen = document.getElementById('results-screen');
+        const finalScore = document.getElementById('final-score');
+        const resultMessage = document.getElementById('result-message');
+
+        // --- CORE FUNCTIONS ---
+        function loadQuestion() {
+            if (currentQuestionIndex >= quizData.length) {
+                showResults();
+                return;
+            }
+
+            const currentQuestion = quizData[currentQuestionIndex];
+            
+            selectedOption = null;
+            nextButton.disabled = true;
+            nextButton.textContent = "Select an Option";
+            nextButton.classList.add('opacity-50');
+            optionsContainer.classList.remove('option-disabled');
+            feedbackMessage.textContent = "";
+
+            questionText.textContent = currentQuestion.question;
+            questionIndexDiv.textContent = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+            updateProgress();
+
+            optionsContainer.innerHTML = '';
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.onclick = () => selectOption(option, button);
+                button.className = 'option-button p-3 rounded-lg text-left border border-accent-cyan bg-deep-blue hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent-cyan focus:ring-offset-deep-blue';
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function selectOption(option, button) {
+            if (selectedOption !== null) return;
+
+            selectedOption = option;
+            nextButton.disabled = false;
+            nextButton.textContent = "Next Dive Site";
+            nextButton.classList.remove('opacity-50');
+
+            const currentQuestion = quizData[currentQuestionIndex];
+            const isCorrect = option === currentQuestion.answer;
+
+            button.classList.add(isCorrect ? 'option-correct' : 'option-incorrect');
+            button.classList.remove('hover:bg-accent-dark');
+            
+            if (!isCorrect) {
+                const correctButton = Array.from(optionsContainer.children).find(btn => btn.textContent === currentQuestion.answer);
+                if (correctButton) {
+                    correctButton.classList.add('option-correct');
+                }
+                feedbackMessage.textContent = "Incorrect. Learn from the deep!";
+                feedbackMessage.classList.remove('text-correct-green');
+                feedbackMessage.classList.add('text-incorrect-red');
+            } else {
+                score++;
+                feedbackMessage.textContent = "Correct! Pressure Maintained.";
+                feedbackMessage.classList.remove('text-incorrect-red');
+                feedbackMessage.classList.add('text-correct-green');
+            }
+
+            Array.from(optionsContainer.children).forEach(btn => btn.classList.add('option-disabled'));
+        }
+
+        function nextQuestion() {
+            if (selectedOption === null) return;
+            currentQuestionIndex++;
+            loadQuestion();
+        }
+
+        function updateProgress() {
+            const progress = (currentQuestionIndex / quizData.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function showResults() {
+            quizContent.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+
+            finalScore.textContent = `${score}/${quizData.length}`;
+
+            if (score === quizData.length) {
+                resultMessage.textContent = "Expert Hydro-Explorer! You know the deepest secrets.";
+                resultMessage.classList.add('text-correct-green');
+            } else if (score >= quizData.length / 2) {
+                resultMessage.textContent = "Successful Dive! Good knowledge of the abyss.";
+                resultMessage.classList.add('text-accent-cyan');
+            } else {
+                resultMessage.textContent = "Surface Level Knowledge. Time for more research!";
+                resultMessage.classList.add('text-incorrect-red');
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            resultsScreen.classList.add('hidden');
+            quizContent.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            loadQuestion();
+        };
+        
+        // Submarine tour functionality
+        (() => {
+          const sections = [
+            document.querySelector('header'),
+            document.querySelector('#quiz-app'),
+            document.querySelector('footer')
+          ].filter(Boolean);
+        
+          const sub = document.querySelector('.submarine');
+          const startBtn = document.getElementById('startTour');
+          const stopBtn = document.getElementById('stopTour');
+        
+          let idx = 0;
+          let timer = null;
+          let running = false;
+        
+          function sailOnce() {
+            sub.classList.remove('sail');
+            sub.offsetWidth;
+            sub.classList.add('sail');
+          }
+        
+          function focusSection(el) {
+            if (!el) return;
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            sailOnce();
+            el.style.outline = '2px solid rgba(0,255,157,.35)';
+            el.style.outlineOffset = '4px';
+            setTimeout(() => {
+              el.style.outline = 'none';
+              el.style.outlineOffset = '0';
+            }, 1200);
+          }
+        
+          function step() {
+            if (!running) return;
+            const el = sections[idx % sections.length];
+            focusSection(el);
+            idx++;
+            const dwell = Math.max(2600, Math.min(5200, Math.round(el?.offsetHeight / 2)))
+            timer = setTimeout(step, dwell);
+          }
+        
+          function start() {
+            if (running) return;
+            running = true;
+            startBtn.style.display = 'none';
+            stopBtn.style.display = 'inline-block';
+            idx = 0;
+            step();
+          }
+        
+          function stop() {
+            running = false;
+            startBtn.style.display = 'inline-block';
+            stopBtn.style.display = 'none';
+            clearTimeout(timer);
+            timer = null;
+          }
+        
+          startBtn?.addEventListener('click', start);
+          stopBtn?.addEventListener('click', stop);
+          
+          // Sound effects for virtual submarine tour
+          const sounds = {
+            ocean: new Audio('https://www.soundjay.com/misc/sounds/ocean-wave-1.mp3'),
+            sonar: new Audio('https://www.soundjay.com/misc/sounds/sonar-1.mp3'),
+            submarine: new Audio('https://www.soundjay.com/misc/sounds/submarine-dive-1.mp3'),
+            bubble: new Audio('https://www.soundjay.com/misc/sounds/bubble-1.mp3'),
+            engine: new Audio('https://www.soundjay.com/misc/sounds/motorboat-1.mp3'),
+            pressure: new Audio('https://www.soundjay.com/misc/sounds/beep-05.mp3'),
+            surfacing: new Audio('https://www.soundjay.com/misc/sounds/water-splash-1.mp3')
+          };
+          
+          // Configure sounds
+          Object.values(sounds).forEach(audio => {
+            audio.loop = false;
+            audio.volume = 0.2;
+          });
+          sounds.ocean.loop = true;
+          sounds.ocean.volume = 0.1;
+          sounds.engine.loop = true;
+          sounds.engine.volume = 0.15;
+          
+          let isTourActive = false;
+          
+          // Start ambient ocean sound on page load
+          setTimeout(() => {
+            sounds.ocean.play().catch(() => {});
+          }, 1000);
+          
+          // Sonar ping every 3 seconds
+          setInterval(() => {
+            sounds.sonar.currentTime = 0;
+            sounds.sonar.play().catch(() => {});
+          }, 3000);
+          
+          // Enhanced tour with realistic sounds
+          const originalStart = start;
+          const originalStop = stop;
+          
+          start = function() {
+            originalStart();
+            isTourActive = true;
+            
+            // Start submarine sequence
+            sounds.submarine.play().catch(() => {});
+            setTimeout(() => {
+              sounds.engine.play().catch(() => {});
+            }, 2000);
+            
+            // Pressure change sounds during tour
+            setTimeout(() => {
+              if (isTourActive) sounds.pressure.play().catch(() => {});
+            }, 5000);
+          };
+          
+          stop = function() {
+            originalStop();
+            isTourActive = false;
+            
+            // Stop engine
+            sounds.engine.pause();
+            sounds.engine.currentTime = 0;
+            
+            // Surfacing sequence
+            setTimeout(() => {
+              sounds.surfacing.play().catch(() => {});
+            }, 500);
+            
+            // Bubble sounds
+            setTimeout(() => {
+              sounds.bubble.play().catch(() => {});
+            }, 1000);
+          };
+        })();
+        
+        // Cross-Page Submarine Tour
+        (() => {
+            const pages = [
+                { url: 'index.html', name: 'Home' },
+                { url: 'creatures.html', name: 'Deep Sea Creatures' },
+                { url: 'cities.html', name: 'Sunken Cities' },
+                { url: 'Shipwrecks.html', name: 'Famous Shipwrecks' },
+                { url: 'reefs.html', name: 'Coral Reefs' },
+                { url: 'save.html', name: 'Save the Ocean' },
+                { url: 'ocean.html', name: 'Ocean Quiz' },
+                { url: 'feedback.html', name: 'Feedback' }
+            ];
+
+            const startBtn = document.getElementById('startTour');
+            const stopBtn = document.getElementById('stopTour');
+            let tourState = JSON.parse(sessionStorage.getItem('oceanTour') || 'null');
+
+            function showOverlay(text) {
+                let ov = document.getElementById('tourOverlay');
+                if (!ov) {
+                    ov = document.createElement('div');
+                    ov.id = 'tourOverlay';
+                    ov.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(0,255,157,0.9),rgba(0,180,100,0.9));color:#000;padding:15px 30px;border-radius:30px;font-family:Orbitron,sans-serif;font-weight:bold;z-index:10000;box-shadow:0 5px 30px rgba(0,255,157,0.5);';
+                    document.body.appendChild(ov);
+                }
+                ov.innerHTML = '🚢 Tour: ' + text; ov.style.display = 'block';
+            }
+
+            function hideOverlay() { const ov = document.getElementById('tourOverlay'); if (ov) ov.style.display = 'none'; }
+
+            if (tourState && tourState.active) {
+                startBtn.style.display = 'none'; stopBtn.style.display = 'inline-block';
+                showOverlay(pages[tourState.pageIndex].name);
+                const sections = document.querySelectorAll('header, main, #quiz-app, footer');
+                let si = 0;
+                function scroll() {
+                    if (!JSON.parse(sessionStorage.getItem('oceanTour') || 'null')?.active) { hideOverlay(); return; }
+                    if (si < sections.length) {
+                        sections[si].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        sections[si].style.outline = '2px solid rgba(0,255,157,.5)'; sections[si].style.outlineOffset = '4px';
+                        setTimeout(() => { if(sections[si]) sections[si].style.outline = 'none'; }, 1500);
+                        si++; setTimeout(scroll, 4500);
+                    } else {
+                        tourState.pageIndex = (tourState.pageIndex + 1) % pages.length;
+                        sessionStorage.setItem('oceanTour', JSON.stringify(tourState));
+                        setTimeout(() => { window.location.href = pages[tourState.pageIndex].url; }, 1500);
+                    }
+                }
+                setTimeout(scroll, 1000);
+            }
+
+            startBtn?.addEventListener('click', () => { sessionStorage.setItem('oceanTour', JSON.stringify({ active: true, pageIndex: 0 })); window.location.href = 'index.html'; });
+            stopBtn?.addEventListener('click', () => { sessionStorage.removeItem('oceanTour'); startBtn.style.display = 'inline-block'; stopBtn.style.display = 'none'; hideOverlay(); });
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single+Ink:wght@100..900&family=Playwrite+NZ+Guides&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quintessential&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>Saving the Ocean - Oceanus</title>
+    <style>
+        :root {
+            --hull-1: #0b1f2a;
+            --hull-2: #0a1a22;
+            --hud: #00ff9d;
+            --hud-dim: #00b36f;
+            --accent: #8b5cf6;
+            --card: rgba(15, 30, 40, 0.75);
+            --radius: 16px;
+            --pill: 24px;
+            --shadow: 0 4px 10px rgba(0,0,0,.35);
+            --shadow-lg: 0 18px 40px rgba(0,0,0,.5);
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: "Quintessential", serif;
+            margin: 0;
+            padding: 0;
+            color: #cde7f5;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(0,255,255,.15), transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(0,255,157,.12), transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(100,0,255,.08), transparent 50%),
+                linear-gradient(180deg, #000814, #001a2e, #000814);
+            overflow-x: hidden;
+            position: relative;
+            font-size: 20px;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(0,255,255,.15) 1px, transparent 1px) 0 0/50px 100%,
+                linear-gradient(0deg, rgba(0,255,255,.15) 1px, transparent 1px) 0 0/100% 50px,
+                linear-gradient(90deg, rgba(0,255,157,.08) 1px, transparent 1px) 0 0/10px 100%,
+                linear-gradient(0deg, rgba(0,255,157,.08) 1px, transparent 1px) 0 0/100% 10px;
+            pointer-events: none;
+            opacity: .4;
+            z-index: 0;
+            animation: grid-scroll 20s linear infinite;
+        }
+        
+        @keyframes grid-scroll {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(50px); }
+        }
+        
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0,255,255,.02) 0px,
+                transparent 1px,
+                transparent 2px,
+                rgba(0,255,255,.02) 3px
+            );
+            pointer-events: none;
+            z-index: 1;
+            animation: scanline 8s linear infinite;
+        }
+        
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+        
+        header {
+            position: relative;
+            background: linear-gradient(180deg, #0f2632, #0a1f29);
+            border-bottom: 2px solid rgba(0,255,157,.25);
+            color: #e7fbff;
+            text-align: center;
+            padding: 24px 16px 16px;
+            box-shadow: var(--shadow-lg);
+            z-index: 2;
+        }
+        
+        header h1 {
+            font-family: 'Orbitron', system-ui, sans-serif;
+            letter-spacing: .05em;
+            color: #ccf7ff;
+            font-size: 3.2rem;
+            margin: 0 0 10px 0;
+            text-shadow: 0 0 12px rgba(0,255,157,.3);
+            animation: fadeInDown 1s ease;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+        }
+        
+        nav a {
+            background: linear-gradient(180deg, #123241, #0e2a36);
+            color: #cde7f5;
+            padding: 14px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            letter-spacing: .03em;
+            border: 1px solid rgba(0,255,157,.25);
+            box-shadow: inset 0 0 12px rgba(0,255,157,.08), var(--shadow);
+            transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+        }
+        
+        nav a:hover {
+            background: #123543;
+            transform: translateY(-1px);
+            box-shadow: inset 0 0 20px rgba(0,255,157,.15), var(--shadow-lg);
+        }
+        
+        nav a:focus-visible {
+            outline: 3px solid var(--hud);
+            outline-offset: 2px;
+        }
+        
+        nav a[aria-current="page"] {
+            outline: 2px solid var(--hud-dim);
+            box-shadow: inset 0 0 24px rgba(0,255,157,.22), 0 0 14px rgba(0,255,157,.25);
+        }
+        
+        .tour-btn {
+            background: linear-gradient(180deg, #123241, #0e2a36);
+            color: #cde7f5;
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,255,157,.35);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: .03em;
+            cursor: pointer;
+            box-shadow: inset 0 0 12px rgba(0,255,157,.12), 0 4px 10px rgba(0,0,0,.35);
+        }
+        .tour-btn:hover {
+            box-shadow: inset 0 0 20px rgba(0,255,157,.22), 0 10px 24px rgba(0,0,0,.5);
+        }
+        
+        main {
+            position: relative;
+            max-width: 980px;
+            margin: 24px auto;
+            padding: 24px;
+            background: var(--card);
+            border: 1px solid rgba(0,255,157,.18);
+            border-radius: var(--radius);
+            backdrop-filter: blur(4px) saturate(120%);
+            box-shadow: 0 10px 40px rgba(0,0,0,.45);
+            z-index: 1;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .content-section {
+            background: linear-gradient(180deg, rgba(10,35,45,.8), rgba(10,35,45,.6));
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 1px solid rgba(0,255,157,.15);
+            box-shadow: inset 0 0 24px rgba(0,255,157,.06);
+        }
+        
+        .section-title {
+            font-family: 'Orbitron', system-ui, sans-serif;
+            font-size: 2.4rem;
+            color: var(--hud);
+            margin: 10px 0 16px;
+            text-shadow: 0 0 8px rgba(0,255,157,.3);
+        }
+        
+        .intro-text {
+            background: linear-gradient(135deg, rgba(17,62,58,.7), rgba(12,47,52,.6));
+            color: #c9ffe9;
+            border: 1px solid rgba(0,255,157,.2);
+            border-radius: 12px;
+            font-size: 1.4rem;
+            line-height: 1.8;
+            margin: 20px 0;
+            box-shadow: inset 0 0 18px rgba(0,255,157,.08);
+        }
+        
+        .highlight-box {
+            background-color: rgba(0,255,157,.08);
+            border-left: 5px solid var(--hud);
+            padding: 15px 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: 600;
+            color: #cffff0;
+        }
+        
+        ol {
+            padding-left: 1.5rem;
+            background: rgba(2, 23, 30, .5);
+            color: #d9faff;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border: 1px solid rgba(0,255,157,.12);
+        }
+        
+        ol li {
+            margin: 10px 0;
+            line-height: 1.7;
+            font-size: 1.3rem;
+        }
+        
+        h2 {
+            color: var(--hud);
+            font-size: 2.4rem;
+            margin: 25px 0 15px 0;
+        }
+        
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(0,255,157,.4), transparent);
+            margin: 30px 0;
+        }
+        
+        footer {
+            background: linear-gradient(180deg, #0a1e27, #08171f);
+            color: #bdefff;
+            text-align: center;
+            padding: 18px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(0,255,157,.2);
+        }
+        
+        footer p {
+            margin: 0;
+            background: transparent;
+            color: #bdefff;
+        }
+        
+        footer i {
+            color: var(--hud);
+            font-style: italic;
+        }
+        
+        .submarine {
+            position: fixed;
+            left: -180px;
+            top: 55%;
+            width: 160px;
+            height: 64px;
+            transform: translateY(-50%);
+            filter: drop-shadow(0 10px 18px rgba(0,255,157,.25));
+            opacity: .95;
+            z-index: 4;
+            pointer-events: none;
+        }
+        .submarine.sail {
+            animation: sail-across 3.2s ease-in-out forwards;
+        }
+        .submarine .prop {
+            transform-origin: 134px 34px;
+            animation: spin 0.5s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes sail-across {
+            0%   { left: -180px; transform: translateY(-50%) rotate(0deg); }
+            50%  { left: calc(50% - 80px); transform: translateY(-50%) rotate(0deg); }
+            100% { left: calc(100% + 200px); transform: translateY(-50%) rotate(2deg); }
+        }
+        
+        .bubbles {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bubbles span {
+            position: absolute;
+            bottom: -80px;
+            width: 10px; height: 10px;
+            background: radial-gradient(circle at 30% 30%, #cffff0, rgba(200,255,240,.15));
+            border-radius: 50%;
+            filter: blur(.2px);
+            animation: rise linear infinite;
+            opacity: .6;
+        }
+        @keyframes rise {
+            from { transform: translateY(0) translateX(0) scale(1); }
+            to   { transform: translateY(-110vh) translateX(-30px) scale(1.2); }
+        }
+        
+        .sonar {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at center, rgba(0,255,157,.15) 0 40%, transparent 41%),
+                radial-gradient(circle at center, rgba(0,255,157,.08) 0 70%, transparent 71%),
+                radial-gradient(circle at center, rgba(0,255,157,.05) 0 99%, transparent 100%),
+                conic-gradient(from 0deg, rgba(0,255,157,0) 0 85%, rgba(0,255,157,.45) 86% 92%, rgba(0,255,157,0) 93% 100%);
+            border: 2px solid rgba(0,255,157,.35);
+            box-shadow: 0 0 30px rgba(0,255,157,.25), inset 0 0 20px rgba(0,255,157,.2);
+            animation: sweep 3.5s linear infinite;
+            z-index: 3;
+        }
+        @keyframes sweep { to { transform: rotate(360deg); } }
+        
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.4rem; }
+            .section-title { font-size: 2rem; }
+            main { margin: 10px; padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+<div class="bubbles">
+  <span style="left:5%;  animation-duration: 16s; animation-delay: -2s;"></span>
+  <span style="left:15%; animation-duration: 18s; animation-delay: -6s;"></span>
+  <span style="left:28%; animation-duration: 20s; animation-delay: -12s; width:14px; height:14px;"></span>
+  <span style="left:38%; animation-duration: 22s; animation-delay: -4s;"></span>
+  <span style="left:50%; animation-duration: 17s; animation-delay: -9s;"></span>
+  <span style="left:63%; animation-duration: 19s; animation-delay: -3s; width:12px; height:12px;"></span>
+  <span style="left:72%; animation-duration: 23s; animation-delay: -14s;"></span>
+  <span style="left:81%; animation-duration: 21s; animation-delay: -7s;"></span>
+  <span style="left:90%; animation-duration: 24s; animation-delay: -11s; width:16px; height:16px;"></span>
+</div>
+
+<div class="sonar" aria-hidden="true"></div>
+
+<div class="submarine" aria-hidden="true">
+  <svg width="160" height="64" viewBox="0 0 160 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="hull" x1="0" x2="1" y1="0" y2="0">
+        <stop offset="0" stop-color="#89fbd1" stop-opacity=".25"/>
+        <stop offset="1" stop-color="#00ff9d" stop-opacity=".55"/>
+      </linearGradient>
+    </defs>
+    <ellipse cx="80" cy="34" rx="62" ry="20" fill="url(#hull)" opacity=".45"/>
+    <rect x="110" y="24" width="22" height="20" rx="2" fill="#00ff9d" opacity=".35"/>
+    <circle cx="58" cy="34" r="8" stroke="#cffff0" stroke-opacity=".9" stroke-width="3" fill="rgba(0,30,40,.6)"/>
+    <circle cx="80" cy="34" r="8" stroke="#cffff0" stroke-opacity=".9" stroke-width="3" fill="rgba(0,30,40,.6)"/>
+    <circle cx="102" cy="34" r="8" stroke="#cffff0" stroke-opacity=".9" stroke-width="3" fill="rgba(0,30,40,.6)"/>
+    <rect x="72" y="12" width="8" height="10" rx="2" fill="#00ff9d" opacity=".6"/>
+    <circle class="prop" cx="134" cy="34" r="6" stroke="#89fbd1" stroke-width="2" opacity=".8"/>
+  </svg>
+</div>
+
+   <span> <header>
+        <h1>Submarine Log: Save the Ocean</h1>
+        <nav aria-label="Primary">
+            <a href="index.html">Home</a>
+            <a href="creatures.html">Deep sea creatures</a>
+            <a href="cities.html">Sunken Cities</a>
+            <a href="Shipwrecks.html">Famous Shipwrecks</a>
+            <a href="reefs.html">Coral Reefs</a>
+            <a href="save.html" aria-current="page">Save the ocean</a>
+            <a href="feedback.html">Feedback and About</a>
+           <a href="ocean.html">a short quiz</a>
+           <button id="startTour" type="button" class="tour-btn">Start Submarine Tour</button>
+           <button id="stopTour" type="button" class="tour-btn" style="display:none;">Stop</button>
+        </nav>
+    </header></span>
+    
+    <main>
+        <div class="content-section">
+            <h1 class="section-title">Why should we save the ocean?</h1>
+            <div class="highlight-box">
+                These are some of the reasons we should protect the ocean.
+            </div>
+            <ol>
+                <li>The ocean absorbs 25% of the total carbon emission and 90% of the total excess heat, acting as a crucial buffer against climate change.</li>
+                <li>The ocean's phytoplankton produce 50% of the world's oxygen, meaning every other breath you take comes from the ocean.</li>
+                <li>The ocean is the backbone of global economics, supporting industries and providing a source of livelihoods for nearly half the world's population.</li>
+            </ol>
+        </div>
+        
+        <div class="intro-text">
+            <i><strong>Our ocean</strong></i> covers more than 70% of the earth's surface yet they are in danger.
+            Every piece of plastic, every drop of oil, every degree of rising temperature affects marine life.<br/><br/>
+            It's our responsibility to protect the marine lives, our ocean friends as they are also <b>God's</b> creation and are also part of our beautiful world. They also have the right to live on this planet as they balance our eco-system.<br/><br/>
+            Research proves that all land animals at one point in time arose from the depths of the sea. So why endanger our pre-habitat? Why destroy something that we cannot create?
+        </div>
+        <div class="content-section">
+            <h1 class="section-title">How we contaminate the ocean?</h1>
+            <h2>We contaminate the ocean by:</h2>
+            <ol>
+                <li>Throwing plastic waste.</li>
+                <li>Disposing waste from factories.</li>
+                <li>Disposal of debris from ships.</li>
+                <li>Constantly adding fish breeding chemicals.</li>
+            </ol>
+        </div>
+        
+        <div class="content-section">
+            <h1 class="section-title">How we can save the ocean?</h1>
+            <div class="highlight-box">
+                You can help save the ocean by:
+            </div>
+            <ol>
+                <li><strong>Reduce Plastic Use:</strong> Minimize single-use plastics by using reusable bags, bottles, and containers. Participate in local cleanups to remove plastic waste from beaches and waterways.</li>
+                <li><strong>Choose Sustainable Seafood:</strong> Opt for seafood from well-managed fisheries to support sustainable fishing practices. This helps maintain fish populations and marine ecosystems.</li>
+                <li><strong>Conserve Water:</strong> Use water efficiently to reduce runoff that can carry pollutants to the ocean. Simple actions like taking shorter showers and fixing leaks can make a significant difference.</li>
+                <li><strong>Reduce Pollutants:</strong> Use non-toxic cleaning products and properly dispose of chemicals to prevent harmful substances from entering the ocean.</li>
+                <li><strong>Support Climate Action:</strong> Advocate for policies that address climate change and reduce greenhouse gas emissions. This can help mitigate the impacts on ocean health.</li>
+                <li><strong>Educate and Advocate:</strong> Raise awareness about ocean conservation issues in your community. Support organizations dedicated to protecting marine environments and participate in advocacy efforts.</li>
+                <li><strong>Practice Responsible Boating:</strong> If you are on the water, anchor in sandy areas away from coral reefs and adhere to "no wake" zones to protect marine habitats.</li>
+            </ol>
+            <div class="highlight-box">
+                By taking these steps, you can contribute to the health of our oceans and help ensure a sustainable future for marine life and ecosystems. Every action counts, and collective efforts can lead to significant positive changes for our oceans.
+            </div>
+        </div>
+    </main>
+    
+    <hr/>
+    <footer>
+        <p>Created by <i>Kingsuk Maiti</i>, <i>Gourav Poddar</i></p>
+    </footer>
+<script>
+(() => {
+  const sections = [
+    document.querySelector('header'),
+    ...Array.from(document.querySelectorAll('.content-section')),
+    document.querySelector('.intro-text'),
+    document.querySelector('footer')
+  ].filter(Boolean);
+
+  const sub = document.querySelector('.submarine');
+  const startBtn = document.getElementById('startTour');
+  const stopBtn = document.getElementById('stopTour');
+
+  let idx = 0;
+  let timer = null;
+  let running = false;
+
+  function sailOnce() {
+    sub.classList.remove('sail');
+    // restart CSS animation
+    // force reflow
+    // eslint-disable-next-line no-unused-expressions
+    sub.offsetWidth;
+    sub.classList.add('sail');
+  }
+
+  function focusSection(el) {
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    sailOnce();
+    // subtle highlight pulse
+    el.style.outline = '2px solid rgba(0,255,157,.35)';
+    el.style.outlineOffset = '4px';
+    setTimeout(() => {
+      el.style.outline = 'none';
+      el.style.outlineOffset = '0';
+    }, 1200);
+  }
+
+  function step() {
+    if (!running) return;
+    const el = sections[idx % sections.length];
+    focusSection(el);
+    idx++;
+    const dwell = Math.max(2600, Math.min(5200, Math.round(el?.offsetHeight / 2))) // adaptive dwell
+    timer = setTimeout(step, dwell);
+  }
+
+  function start() {
+    if (running) return;
+    running = true;
+    startBtn.style.display = 'none';
+    stopBtn.style.display = 'inline-block';
+    idx = 0;
+    step();
+  }
+
+  function stop() {
+    running = false;
+    startBtn.style.display = 'inline-block';
+    stopBtn.style.display = 'none';
+    clearTimeout(timer);
+    timer = null;
+  }
+
+  startBtn?.addEventListener('click', start);
+  stopBtn?.addEventListener('click', stop);
+
+  // Sound effects for virtual submarine tour
+  
+  
+  // Configure sounds
+  Object.values(sounds).forEach(audio => {
+    audio.loop = false;
+    audio.volume = 0.2;
+  });
+  sounds.ocean.loop = true;
+  sounds.ocean.volume = 0.1;
+  sounds.engine.loop = true;
+  sounds.engine.volume = 0.15;
+  
+  let isTourActive = false;
+  
+  // Start ambient ocean sound on page load
+  setTimeout(() => {
+    sounds.ocean.play().catch(() => {});
+  }, 1000);
+  
+  // Sonar ping every 3 seconds
+  setInterval(() => {
+    sounds.sonar.currentTime = 0;
+    sounds.sonar.play().catch(() => {});
+  }, 3000);
+  
+  // Enhanced tour with realistic sounds
+  const originalStart = start;
+  const originalStop = stop;
+  
+  start = function() {
+    originalStart();
+    isTourActive = true;
+    
+    // Start submarine sequence
+    sounds.submarine.play().catch(() => {});
+    setTimeout(() => {
+      sounds.engine.play().catch(() => {});
+    }, 2000);
+    
+    // Pressure change sounds during tour
+    setTimeout(() => {
+      if (isTourActive) sounds.pressure.play().catch(() => {});
+    }, 5000);
+  };
+  
+  stop = function() {
+    originalStop();
+    isTourActive = false;
+    
+    // Stop engine
+    sounds.engine.pause();
+    sounds.engine.currentTime = 0;
+    
+    // Surfacing sequence
+    setTimeout(() => {
+      sounds.surfacing.play().catch(() => {});
+    }, 500);
+    
+    // Bubble sounds
+    setTimeout(() => {
+      sounds.bubble.play().catch(() => {});
+    }, 1000);
+  };
+
+})();
+
+// Cross-Page Submarine Tour
+(() => {
+    const pages = [
+        { url: 'index.html', name: 'Home' },
+        { url: 'creatures.html', name: 'Deep Sea Creatures' },
+        { url: 'cities.html', name: 'Sunken Cities' },
+        { url: 'Shipwrecks.html', name: 'Famous Shipwrecks' },
+        { url: 'reefs.html', name: 'Coral Reefs' },
+        { url: 'save.html', name: 'Save the Ocean' },
+        { url: 'ocean.html', name: 'Ocean Quiz' },
+        { url: 'feedback.html', name: 'Feedback' }
+    ];
+
+    const startBtn = document.getElementById('startTour');
+    const stopBtn = document.getElementById('stopTour');
+    let tourState = JSON.parse(sessionStorage.getItem('oceanTour') || 'null');
+
+    function showOverlay(text) {
+        let ov = document.getElementById('tourOverlay');
+        if (!ov) {
+            ov = document.createElement('div');
+            ov.id = 'tourOverlay';
+            ov.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(0,255,157,0.9),rgba(0,180,100,0.9));color:#000;padding:15px 30px;border-radius:30px;font-family:Orbitron,sans-serif;font-weight:bold;z-index:10000;box-shadow:0 5px 30px rgba(0,255,157,0.5);';
+            document.body.appendChild(ov);
+        }
+        ov.innerHTML = '🚢 Tour: ' + text; ov.style.display = 'block';
+    }
+
+    function hideOverlay() { const ov = document.getElementById('tourOverlay'); if (ov) ov.style.display = 'none'; }
+
+    if (tourState && tourState.active) {
+        startBtn.style.display = 'none'; stopBtn.style.display = 'inline-block';
+        showOverlay(pages[tourState.pageIndex].name);
+        const sections = document.querySelectorAll('header, main, .content-section, .intro-text, footer');
+        let si = 0;
+        function scroll() {
+            if (!JSON.parse(sessionStorage.getItem('oceanTour') || 'null')?.active) { hideOverlay(); return; }
+            if (si < sections.length) {
+                sections[si].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                sections[si].style.outline = '2px solid rgba(0,255,157,.5)'; sections[si].style.outlineOffset = '4px';
+                setTimeout(() => { if(sections[si]) sections[si].style.outline = 'none'; }, 1500);
+                si++; setTimeout(scroll, 4500);
+            } else {
+                tourState.pageIndex = (tourState.pageIndex + 1) % pages.length;
+                sessionStorage.setItem('oceanTour', JSON.stringify(tourState));
+                setTimeout(() => { window.location.href = pages[tourState.pageIndex].url; }, 1500);
+            }
+        }
+        setTimeout(scroll, 1000);
+    }
+
+    startBtn?.addEventListener('click', () => { sessionStorage.setItem('oceanTour', JSON.stringify({ active: true, pageIndex: 0 })); window.location.href = 'index.html'; });
+    stopBtn?.addEventListener('click', () => { sessionStorage.removeItem('oceanTour'); startBtn.style.display = 'inline-block'; stopBtn.style.display = 'none'; hideOverlay(); });
+})();
+</script>
+</body>
+</html>

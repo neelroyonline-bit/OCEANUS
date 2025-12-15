@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>Famous Shipwrecks - Oceanus</title>
+    <style>
+        :root {
+            --hull-1: #0b1f2a;
+            --hull-2: #0a1a22;
+            --hud: #00ff9d;
+            --hud-dim: #00b36f;
+            --card: rgba(15, 30, 40, 0.75);
+            --radius: 16px;
+            --shadow: 0 4px 10px rgba(0,0,0,.35);
+            --shadow-lg: 0 18px 40px rgba(0,0,0,.5);
+        }
+        
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        
+        body {
+            font-family: 'Pirata One', cursive;
+            margin: 0;
+            padding: 0;
+            color: #cde7f5;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 20% 30%, rgba(0,255,255,.15), transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(0,255,157,.12), transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(100,0,255,.08), transparent 50%),
+                linear-gradient(180deg, #000814, #001a2e, #000814);
+            overflow-x: hidden;
+            position: relative;
+            font-size: 20px;
+        }
+        
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(0,255,255,.15) 1px, transparent 1px) 0 0/50px 100%,
+                linear-gradient(0deg, rgba(0,255,255,.15) 1px, transparent 1px) 0 0/100% 50px,
+                linear-gradient(90deg, rgba(0,255,157,.08) 1px, transparent 1px) 0 0/10px 100%,
+                linear-gradient(0deg, rgba(0,255,157,.08) 1px, transparent 1px) 0 0/100% 10px;
+            pointer-events: none;
+            opacity: .4;
+            z-index: 0;
+            animation: grid-scroll 20s linear infinite;
+        }
+        
+        @keyframes grid-scroll {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(50px); }
+        }
+        
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0,255,255,.02) 0px,
+                transparent 1px,
+                transparent 2px,
+                rgba(0,255,255,.02) 3px
+            );
+            pointer-events: none;
+            z-index: 1;
+            animation: scanline 8s linear infinite;
+        }
+        
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100%); }
+        }
+        
+        header {
+            position: relative;
+            background: linear-gradient(180deg, #0f2632, #0a1f29);
+            border-bottom: 2px solid rgba(0,255,157,.25);
+            color: #e7fbff;
+            text-align: center;
+            padding: 24px 16px 16px;
+            box-shadow: var(--shadow-lg);
+            z-index: 2;
+        }
+        
+        header h1 {
+            font-family: 'Orbitron', system-ui, sans-serif;
+            letter-spacing: .05em;
+            color: #ccf7ff;
+            font-size: 3.2rem;
+            margin: 0 0 10px 0;
+            text-shadow: 0 0 12px rgba(0,255,157,.3);
+            animation: fadeInDown 1s ease;
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+        }
+        
+        nav a {
+            background: linear-gradient(180deg, #123241, #0e2a36);
+            color: #cde7f5;
+            padding: 14px 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            letter-spacing: .03em;
+            border: 1px solid rgba(0,255,157,.25);
+            box-shadow: inset 0 0 12px rgba(0,255,157,.08), var(--shadow);
+            transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+        }
+        
+        nav a:hover {
+            background: #123543;
+            transform: translateY(-1px);
+            box-shadow: inset 0 0 20px rgba(0,255,157,.15), var(--shadow-lg);
+        }
+        
+        nav a[aria-current="page"] {
+            outline: 2px solid var(--hud-dim);
+            box-shadow: inset 0 0 24px rgba(0,255,157,.22), 0 0 14px rgba(0,255,157,.25);
+        }
+        
+        .tour-btn {
+            background: linear-gradient(180deg, #123241, #0e2a36);
+            color: #cde7f5;
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(0,255,157,.35);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: inset 0 0 12px rgba(0,255,157,.12), var(--shadow);
+        }
+        .tour-btn:hover {
+            box-shadow: inset 0 0 20px rgba(0,255,157,.22), var(--shadow-lg);
+        }
+        
+        main {
+            position: relative;
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 24px;
+            background: var(--card);
+            border: 1px solid rgba(0,255,157,.18);
+            border-radius: var(--radius);
+            backdrop-filter: blur(4px) saturate(120%);
+            box-shadow: 0 10px 40px rgba(0,0,0,.45);
+            z-index: 1;
+        }
+        
+        h2 {
+            font-family: 'Orbitron', system-ui, sans-serif;
+            color: var(--hud);
+            font-size: 2.6rem;
+            margin: 30px 0 15px 0;
+            text-shadow: 0 0 8px rgba(0,255,157,.3);
+            text-align: center;
+        }
+        
+        .intro-section {
+            background: linear-gradient(135deg, rgba(17,62,58,.7), rgba(12,47,52,.6));
+            border: 1px solid rgba(0,255,157,.2);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .intro-section p {
+            color: #c9ffe9;
+            line-height: 1.8;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        
+        /* Shipwreck Cards */
+        .shipwrecks-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .shipwreck-card {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 25px;
+            background: linear-gradient(135deg, rgba(10,35,45,.9), rgba(5,25,35,.8));
+            border: 1px solid rgba(0,255,157,.2);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .shipwreck-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 15px 35px rgba(0,255,157,.15);
+        }
+        
+        .shipwreck-img {
+            width: 100%;
+            height: 100%;
+            min-height: 280px;
+            object-fit: cover;
+        }
+        
+        .shipwreck-content {
+            padding: 25px 25px 25px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .shipwreck-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--hud);
+            font-size: 2.2rem;
+            margin: 0 0 5px 0;
+        }
+        
+        .ship-type {
+            color: #7aa;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        
+        .shipwreck-card p {
+            color: #c9ffe9;
+            line-height: 1.8;
+            margin: 0 0 15px 0;
+            font-size: 1.4rem;
+        }
+        
+        .ship-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-box {
+            background: rgba(0,255,157,.1);
+            border: 1px solid rgba(0,255,157,.25);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-box .label {
+            color: #7aa;
+            font-size: 1rem;
+            font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase;
+        }
+        
+        .stat-box .value {
+            color: var(--hud);
+            font-size: 1.5rem;
+            font-family: 'Orbitron', sans-serif;
+            margin-top: 5px;
+        }
+        
+        /* Survival Simulation */
+        .simulation-section {
+            background: linear-gradient(135deg, rgba(0,20,40,.95), rgba(0,10,25,.95));
+            border: 2px solid rgba(0,255,157,.3);
+            border-radius: 16px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+        
+        .simulation-title {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--hud);
+            font-size: 2rem;
+            margin: 0 0 10px 0;
+            text-align: center;
+        }
+        
+        .simulation-subtitle {
+            text-align: center;
+            color: #7aa;
+            margin-bottom: 25px;
+        }
+        
+        .scenario-container {
+            background: rgba(0,0,0,.4);
+            border-radius: 12px;
+            padding: 25px;
+        }
+        
+        .scenario-text {
+            color: #c9ffe9;
+            font-size: 1.5rem;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(0,255,157,.05);
+            border-left: 4px solid var(--hud);
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .choices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .choice-btn {
+            background: linear-gradient(180deg, #123241, #0e2a36);
+            color: #cde7f5;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid rgba(0,255,157,.3);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        
+        .choice-btn:hover {
+            background: rgba(0,255,157,.15);
+            border-color: var(--hud);
+            transform: translateY(-3px);
+        }
+        
+        .choice-btn.correct {
+            background: rgba(0,200,100,.3);
+            border-color: #00ff9d;
+        }
+        
+        .choice-btn.wrong {
+            background: rgba(200,50,50,.3);
+            border-color: #ff4444;
+        }
+        
+        .result-box {
+            background: rgba(0,0,0,.5);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .result-box.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-box h4 {
+            color: var(--hud);
+            margin: 0 0 10px 0;
+        }
+        
+        .result-box p {
+            color: #c9ffe9;
+            margin: 0;
+        }
+        
+        .next-scenario-btn {
+            background: var(--hud);
+            color: #000;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+        
+        .next-scenario-btn:hover {
+            background: #fff;
+            box-shadow: 0 0 20px rgba(0,255,157,.5);
+        }
+        
+        /* What-If Section */
+        .whatif-section {
+            background: rgba(0,0,0,.3);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+        }
+        
+        .whatif-title {
+            font-family: 'Orbitron', sans-serif;
+            color: #ff6b6b;
+            font-size: 1.3rem;
+            margin: 0 0 15px 0;
+        }
+        
+        .whatif-scenario {
+            background: rgba(255,100,100,.1);
+            border-left: 4px solid #ff6b6b;
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+        }
+        
+        .whatif-scenario h4 {
+            color: #ff9999;
+            margin: 0 0 10px 0;
+        }
+        
+        .whatif-scenario p {
+            color: #c9ffe9;
+            margin: 0;
+            line-height: 1.7;
+        }
+        
+        /* Stats Counter */
+        .death-toll-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .toll-card {
+            background: rgba(100,0,0,.2);
+            border: 1px solid rgba(255,100,100,.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .toll-card .ship-name {
+            color: #ff9999;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+        
+        .toll-card .toll-number {
+            color: #ff6666;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            text-shadow: 0 0 10px rgba(255,100,100,.5);
+        }
+        
+        .toll-card .toll-label {
+            color: #aa8888;
+            font-size: 0.8rem;
+        }
+        
+        footer {
+            background: linear-gradient(180deg, #0a1e27, #08171f);
+            color: #bdefff;
+            text-align: center;
+            padding: 18px;
+            margin-top: 40px;
+            border-top: 1px solid rgba(0,255,157,.2);
+        }
+        
+        footer p { margin: 0; }
+        
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(0,255,157,.4), transparent);
+            margin: 30px 0;
+        }
+        
+        /* Animations */
+        .bubbles {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bubbles span {
+            position: absolute;
+            bottom: -80px;
+            width: 10px; height: 10px;
+            background: radial-gradient(circle at 30% 30%, #cffff0, rgba(200,255,240,.15));
+            border-radius: 50%;
+            animation: rise linear infinite;
+            opacity: .6;
+        }
+        @keyframes rise {
+            from { transform: translateY(0) translateX(0) scale(1); }
+            to   { transform: translateY(-110vh) translateX(-30px) scale(1.2); }
+        }
+        
+        .sonar {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at center, rgba(0,255,157,.15) 0 40%, transparent 41%),
+                radial-gradient(circle at center, rgba(0,255,157,.08) 0 70%, transparent 71%),
+                radial-gradient(circle at center, rgba(0,255,157,.05) 0 99%, transparent 100%),
+                conic-gradient(from 0deg, rgba(0,255,157,0) 0 85%, rgba(0,255,157,.45) 86% 92%, rgba(0,255,157,0) 93% 100%);
+            border: 2px solid rgba(0,255,157,.35);
+            box-shadow: 0 0 30px rgba(0,255,157,.25);
+            animation: sweep 3.5s linear infinite;
+            z-index: 3;
+        }
+        @keyframes sweep { to { transform: rotate(360deg); } }
+        
+        .submarine {
+            position: fixed;
+            left: -200px;
+            top: 55%;
+            width: 180px;
+            height: 70px;
+            transform: translateY(-50%);
+            filter: drop-shadow(0 0 25px rgba(0,255,255,.5)) drop-shadow(0 10px 20px rgba(0,255,157,.3));
+            opacity: .95;
+            z-index: 4;
+            pointer-events: none;
+        }
+        .submarine.sail { animation: sail-across 6s ease-in-out forwards; }
+        .submarine .prop { transform-origin: 165px 35px; animation: spin 0.15s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes sail-across {
+            0%   { left: -200px; transform: translateY(-50%) rotate(0deg); }
+            50%  { left: calc(50% - 90px); transform: translateY(-50%) rotate(0deg); }
+            100% { left: calc(100% + 220px); transform: translateY(-50%) rotate(2deg); }
+        }
+        
+        @media (max-width: 900px) {
+            .shipwreck-card {
+                grid-template-columns: 1fr;
+            }
+            .shipwreck-img {
+                min-height: 200px;
+            }
+            .shipwreck-content {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header h1 { font-size: 2.4rem; }
+            h2 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bubbles" aria-hidden="true">
+    <span style="left:5%;  animation-duration: 16s; animation-delay: -2s;"></span>
+    <span style="left:15%; animation-duration: 18s; animation-delay: -6s;"></span>
+    <span style="left:28%; animation-duration: 20s; animation-delay: -12s; width:14px; height:14px;"></span>
+    <span style="left:38%; animation-duration: 22s; animation-delay: -4s;"></span>
+    <span style="left:50%; animation-duration: 17s; animation-delay: -9s;"></span>
+    <span style="left:63%; animation-duration: 19s; animation-delay: -3s; width:12px; height:12px;"></span>
+    <span style="left:72%; animation-duration: 23s; animation-delay: -14s;"></span>
+    <span style="left:81%; animation-duration: 21s; animation-delay: -7s;"></span>
+    <span style="left:90%; animation-duration: 24s; animation-delay: -11s; width:16px; height:16px;"></span>
+</div>
+
+<div class="sonar" aria-hidden="true"></div>
+
+<div class="submarine" aria-hidden="true">
+    <svg width="180" height="70" viewBox="0 0 180 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <linearGradient id="futuristicHull" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="#00ffff" stop-opacity=".6"/>
+                <stop offset="0.5" stop-color="#00ff9d" stop-opacity=".8"/>
+                <stop offset="1" stop-color="#0080ff" stop-opacity=".6"/>
+            </linearGradient>
+            <linearGradient id="glowAccent" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0" stop-color="#00ffff"/>
+                <stop offset="1" stop-color="#00ff9d"/>
+            </linearGradient>
+        </defs>
+        <path d="M20,35 L90,20 L140,25 L160,35 L140,45 L90,50 L20,35 Z" fill="url(#futuristicHull)" opacity=".7"/>
+        <path d="M20,35 L90,20 L140,25 L160,35 L140,45 L90,50 L20,35 Z" stroke="#00ffff" stroke-width="1.5" fill="none" opacity=".9"/>
+        <ellipse cx="70" cy="35" rx="18" ry="12" fill="rgba(0,255,255,.3)" stroke="#00ffff" stroke-width="2"/>
+        <ellipse cx="70" cy="35" rx="12" ry="8" fill="rgba(0,255,255,.5)"/>
+        <rect x="45" y="32" width="8" height="6" fill="#00ff9d" opacity=".8"/>
+        <rect x="85" y="30" width="10" height="4" fill="#00ffff" opacity=".7"/>
+        <rect x="100" y="32" width="6" height="5" fill="#00ff9d" opacity=".8"/>
+        <rect x="155" y="30" width="8" height="4" rx="1" fill="url(#glowAccent)" opacity=".9"/>
+        <rect x="155" y="36" width="8" height="4" rx="1" fill="url(#glowAccent)" opacity=".9"/>
+        <g class="prop">
+            <line x1="165" y1="35" x2="175" y2="30" stroke="#00ffff" stroke-width="2" opacity=".9"/>
+            <line x1="165" y1="35" x2="175" y2="40" stroke="#00ffff" stroke-width="2" opacity=".9"/>
+            <circle cx="165" cy="35" r="3" fill="#00ff9d"/>
+        </g>
+        <circle cx="30" cy="35" r="2" fill="#00ffff" opacity=".9"/>
+        <circle cx="120" cy="33" r="1.5" fill="#00ff9d" opacity=".9"/>
+        <circle cx="135" cy="37" r="1.5" fill="#00ffff" opacity=".9"/>
+        <path d="M75,20 L80,10 L85,20 Z" fill="url(#glowAccent)" opacity=".7" stroke="#00ffff" stroke-width="1"/>
+    </svg>
+</div>
+
+<header>
+    <h1>Submarine Log: Famous Shipwrecks</h1>
+    <nav aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="creatures.html">Deep Sea Creatures</a>
+        <a href="cities.html">Sunken Cities</a>
+        <a href="Shipwrecks.html" aria-current="page">Famous Shipwrecks</a>
+        <a href="reefs.html">Coral Reefs</a>
+        <a href="save.html">Save the Ocean</a>
+        <a href="feedback.html">Feedback and About</a>
+        <a href="ocean.html">A Short Quiz</a>
+        <button id="startTour" type="button" class="tour-btn">Start Submarine Tour</button>
+        <button id="stopTour" type="button" class="tour-btn" style="display:none;">Stop</button>
+    </nav>
+</header>
+
+<main>
+    <div class="intro-section">
+        <p>
+            ⚓ The ocean floor is a graveyard of human ambition. From legendary ocean liners to ancient trading vessels, 
+            thousands of ships rest in eternal silence beneath the waves. Each wreck tells a story of tragedy, 
+            heroism, and the unforgiving power of the sea. Over 3 million shipwrecks lie undiscovered worldwide.
+        </p>
+    </div>
+    
+    <!-- Survival Simulation -->
+    <div class="simulation-section">
+        <h3 class="simulation-title">🚢 WHAT-IF SIMULATION: Shipwreck Survival</h3>
+        <p class="simulation-subtitle">Test your survival instincts in historical maritime disasters!</p>
+        
+        <div class="scenario-container" id="scenarioContainer">
+            <div class="scenario-text" id="scenarioText">
+                <strong>SCENARIO 1: RMS Titanic, April 15, 1912</strong><br><br>
+                It's 11:40 PM. The ship has struck an iceberg. You're a third-class passenger deep in the ship. 
+                The crew is telling everyone to stay calm, but you feel the ship listing. Water temperature outside: -2°C (28°F).
+                What do you do?
+            </div>
+            
+            <div class="choices-grid" id="choicesGrid">
+                <button class="choice-btn" data-correct="false" data-feedback="Bad choice! Staying in your cabin means you'll be trapped as the lower decks flood first. Third-class passengers had the highest death rate (75%) partly because many waited too long.">
+                    🛏️ Stay in your cabin and wait for instructions
+                </button>
+                <button class="choice-btn" data-correct="true" data-feedback="Smart move! Getting to the boat deck immediately was crucial. Those who acted quickly had the best chance. The ship sank in just 2 hours and 40 minutes.">
+                    🏃 Head immediately to the upper decks
+                </button>
+                <button class="choice-btn" data-correct="false" data-feedback="Dangerous! Jumping into -2°C water causes cold shock and hypothermia within minutes. Most people in the water died within 15-30 minutes, even with life jackets.">
+                    🌊 Find a life jacket and jump overboard
+                </button>
+                <button class="choice-btn" data-correct="false" data-feedback="Risky choice. While finding supplies seems logical, every minute spent below decks reduced survival chances. The bow was underwater within an hour.">
+                    🎒 Search for emergency supplies first
+                </button>
+            </div>
+            
+            <div class="result-box" id="resultBox">
+                <h4 id="resultTitle">Result</h4>
+                <p id="resultText"></p>
+                <button class="next-scenario-btn" onclick="nextScenario()">Next Scenario →</button>
+            </div>
+        </div>
+    </div>
+    
+    <h2>⚓ Legendary Shipwrecks</h2>
+    <div class="shipwrecks-container">
+        <div class="shipwreck-card">
+            <img src="titanic.png" alt="Titanic" class="shipwreck-img">
+            <div class="shipwreck-content">
+                <h3>🚢 RMS Titanic</h3>
+                <div class="ship-type">British Ocean Liner • White Star Line</div>
+                <p>The "unsinkable" ship that became history's most famous maritime disaster. On her maiden voyage, she struck an iceberg and sank in just 2 hours 40 minutes. Of 2,224 passengers, only 710 survived. The wreck wasn't found until 1985, lying 3,800m below the Atlantic.</p>
+                  <p>There are many Movies also made on it but it is not sure how much exaggerated they are</p>
+                <div class="ship-stats">
+                    <div class="stat-box">
+                        <div class="label">Sank</div>
+                        <div class="value">1912</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="label">Depth</div>
+                        <div class="value">3,800m</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="label">Lives Lost</div>
+                        <div class="value">1,514</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="label">Length</div>
+                        <div class="value">269m</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="shipwreck-card">
+            <img src="ship2.png" alt="Lusitania" class="shipwreck-img">
+            <div class="shipwreck-content">
+                <h3>⚔️ RMS Lusitania</h3>
+                <div class="ship-type">British Ocean Liner • Cunard Line</div>
+                <p>Torpedoed by a German U-boat during WWI, she sank in just 18 minutes — one of the fastest sinkings of a major liner. The attack killed 1,198 people including 128 Americans, helping draw the US into World War I. Mystery still surrounds a secondary explosion.</p>
+                <div class="ship-stats">
+                    <div class="stat-box">
+                        <div class="label">Sank</div>
+                        <div class="value">1915</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="label">Depth</div>
+                        <div class="value">93m</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="label">Lives Lost</div>
+                        <div class="value">1,198</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="label">Sinking Time</div>
+                        <div class="value">18 min</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="shipwreck-card">
+            <img src="ship3.png" alt="Bismarck" class="shipwreck-img">
+            <div class="shipwreck-content">
+                <h3>⚓ Battleship Bismarck</h3>
+                <div class="ship-type">German Battleship • Kriegsmarine</div>
+                <p>Nazi Germany's most powerful battleship, sunk after an epic chase across the Atlantic. After destroying HMS Hood (killing 1,415), the Royal Navy hunted her relentlessly. Found in 1989 at 4,791m depth — one of the deepest wrecks ever explored.</p>
+                <div class="ship-stats">
+                    <div class="stat-box">
+                        <div class="label">Sank</div>
+                        <div class="value">1941</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="label">Depth</div>
+                        <div class="value">4,791m</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="label">Crew Lost</div>
+                        <div class="value">2,086</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="label">Length</div>
+                        <div class="value">251m</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="shipwreck-card">
+            <img src="arizona.jpg" alt="USS Arizona" class="shipwreck-img">
+            <div class="shipwreck-content">
+                <h3>🇺🇸 USS Arizona</h3>
+                <div class="ship-type">American Battleship • US Navy</div>
+                <p>Destroyed during the Pearl Harbor attack that brought America into WWII. A bomb penetrated her deck and ignited the forward magazines — she sank in 9 minutes. 1,177 crew died. The wreck remains a war grave, still leaking oil 80+ years later ("tears of the Arizona").</p>
+                <div class="ship-stats">
+                    <div class="stat-box">
+                        <div class="label">Sank</div>
+                        <div class="value">1941</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="label">Depth</div>
+                        <div class="value">12m</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="label">Lives Lost</div>
+                        <div class="value">1,177</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="label">Oil Leaked/Day</div>
+                        <div class="value">9 quarts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="shipwreck-card">
+            <img src="ship4.jpg" alt="Spanish Galleon" class="shipwreck-img">
+            <div class="shipwreck-content">
+                <h3>💰 San José (Spanish Galleon)</h3>
+                <div class="ship-type">Spanish Treasure Ship • Spanish Empire</div>
+                <p>The "Holy Grail of Shipwrecks"! Sunk by the British in 1708 while carrying treasure worth $17+ BILLION today — gold, silver, and emeralds from South American colonies. Found in 2015 off Colombia. Ownership disputes continue between Spain, Colombia, and treasure hunters.</p>
+                <div class="ship-stats">
+                    <div class="stat-box">
+                        <div class="label">Sank</div>
+                        <div class="value">1708</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="label">Depth</div>
+                        <div class="value">600m</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="label">Treasure Value</div>
+                        <div class="value">$17B+</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="label">Crew Lost</div>
+                        <div class="value">~600</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Death Toll Comparison -->
+    <h2>💀 Maritime Disaster Death Tolls</h2>
+    <div class="death-toll-section">
+        <div class="toll-card">
+            <div class="ship-name">MV Wilhelm Gustloff</div>
+            <div class="toll-number">9,400</div>
+            <div class="toll-label">Deadliest maritime disaster ever (1945)</div>
+        </div>
+        <div class="toll-card">
+            <div class="ship-name">MV Doña Paz</div>
+            <div class="toll-number">4,386</div>
+            <div class="toll-label">Peacetime record (1987)</div>
+        </div>
+        <div class="toll-card">
+            <div class="ship-name">RMS Titanic</div>
+            <div class="toll-number">1,514</div>
+            <div class="toll-label">Most famous disaster (1912)</div>
+        </div>
+        <div class="toll-card">
+            <div class="ship-name">RMS Lusitania</div>
+            <div class="toll-number">1,198</div>
+            <div class="toll-label">WWI catalyst (1915)</div>
+        </div>
+    </div>
+    
+    <!-- What-If Section -->
+    <div class="whatif-section">
+        <h3 class="whatif-title">🤔 WHAT IF Scenarios</h3>
+        
+        <div class="whatif-scenario">
+            <h4>What if the Titanic had hit the iceberg head-on?</h4>
+            <p>Counterintuitively, she might have survived! A head-on collision would have crushed the bow but kept the watertight compartments intact. By turning, the iceberg scraped along the side, opening 6 compartments — she could only float with 4 flooded. The ship was doomed by trying to avoid the berg.</p>
+        </div>
+        
+        <div class="whatif-scenario">
+            <h4>What if we could raise the Titanic?</h4>
+            <p>Impossible with current technology! At 3,800m depth under 6,000 PSI pressure, the wreck is too fragile. The hull is being consumed by "rusticles" (iron-eating bacteria) at 400 lbs/day. Scientists estimate the Titanic will completely collapse by 2030. It's better preserved as an underwater memorial.</p>
+        </div>
+        
+        <div class="whatif-scenario">
+            <h4>What if all undiscovered shipwrecks were found?</h4>
+            <p>UNESCO estimates 3 million shipwrecks remain undiscovered worldwide. If found, they would contain over $60 billion in treasure, rewrite countless historical events, and solve mysteries like the fate of explorer ships, ancient trading routes, and lost civilizations. The ocean floor is the world's largest museum.</p>
+        </div>
+    </div>
+</main>
+
+<hr/>
+<footer>
+    <p>Created by Kingsuk Maiti, Gourav Poddar </p>
+</footer>
+
+<script>
+// Survival Simulation
+const scenarios = [
+    {
+        title: "SCENARIO 1: RMS Titanic, April 15, 1912",
+        text: "It's 11:40 PM. The ship has struck an iceberg. You're a third-class passenger deep in the ship. The crew is telling everyone to stay calm, but you feel the ship listing. Water temperature outside: -2°C (28°F). What do you do?",
+        choices: [
+            { text: "🛏️ Stay in your cabin and wait for instructions", correct: false, feedback: "Bad choice! Staying in your cabin means you'll be trapped as the lower decks flood first. Third-class passengers had the highest death rate (75%) partly because many waited too long." },
+            { text: "🏃 Head immediately to the upper decks", correct: true, feedback: "Smart move! Getting to the boat deck immediately was crucial. Those who acted quickly had the best chance. The ship sank in just 2 hours and 40 minutes." },
+            { text: "🌊 Find a life jacket and jump overboard", correct: false, feedback: "Dangerous! Jumping into -2°C water causes cold shock and hypothermia within minutes. Most people in the water died within 15-30 minutes, even with life jackets." },
+            { text: "🎒 Search for emergency supplies first", correct: false, feedback: "Risky choice. While finding supplies seems logical, every minute spent below decks reduced survival chances. The bow was underwater within an hour." }
+        ]
+    },
+    {
+        title: "SCENARIO 2: RMS Lusitania, May 7, 1915",
+        text: "A torpedo has just struck the ship! There's been a secondary explosion and the ship is listing heavily to starboard. She's sinking FAST — you have maybe 18 minutes. Lifeboats on one side can't launch due to the list. What's your priority?",
+        choices: [
+            { text: "🚣 Run to the port side lifeboats", correct: true, feedback: "Correct! The starboard list made port-side boats the only option. Those who recognized this quickly had the best chance. Many died waiting at starboard boats that couldn't launch." },
+            { text: "🦺 Find the best life jacket available", correct: false, feedback: "No time! The Lusitania sank in just 18 minutes. Spending time searching meant missing the lifeboats entirely. Of 1,959 aboard, 1,198 died — many had life jackets but couldn't survive the cold Irish Sea." },
+            { text: "📦 Grab floating debris and jump", correct: false, feedback: "Too early! While debris helped some survivors, jumping immediately meant longer exposure to cold water. Better to try for a lifeboat first, then find debris if necessary." },
+            { text: "⬇️ Head below to check on family", correct: false, feedback: "Fatal mistake. The lower decks flooded almost instantly after the secondary explosion. Going below decks meant certain death. Many families were separated forever by this choice." }
+        ]
+    },
+    {
+        title: "SCENARIO 3: USS Indianapolis, July 30, 1945",
+        text: "Your ship has been torpedoed and sank in 12 minutes. You're now floating in the Philippine Sea with 900 other survivors. No distress signal was sent. Sharks are circling. You might not be rescued for DAYS. How do you survive?",
+        choices: [
+            { text: "🏊 Swim toward the distant island", correct: false, feedback: "Impossible! The nearest land was over 300 miles away. Swimming would exhaust you, attract sharks with splashing, and guarantee death. Of 1,196 crew, only 316 survived after 4 days in the water." },
+            { text: "👥 Stay in a tight group with others", correct: true, feedback: "Best strategy! Groups deterred sharks, shared body heat, and kept morale up. Isolated swimmers were picked off by sharks. The survivors who stayed together had the highest survival rate." },
+            { text: "🦈 Fight the sharks aggressively", correct: false, feedback: "Exhausting and futile. There were hundreds of sharks. Fighting attracted more sharks and depleted your energy. Survivors learned to stay still and quiet to avoid attention." },
+            { text: "🍶 Drink seawater to stay hydrated", correct: false, feedback: "Fatal error! Drinking seawater causes rapid dehydration and hallucinations. Many Indianapolis survivors went mad from drinking seawater and swam away from rescue ships they hallucinated as Japanese vessels." }
+        ]
+    }
+];
+
+let currentScenario = 0;
+const scenarioText = document.getElementById('scenarioText');
+const choicesGrid = document.getElementById('choicesGrid');
+const resultBox = document.getElementById('resultBox');
+const resultTitle = document.getElementById('resultTitle');
+const resultText = document.getElementById('resultText');
+
+function loadScenario(index) {
+    const scenario = scenarios[index];
+    scenarioText.innerHTML = `<strong>${scenario.title}</strong><br><br>${scenario.text}`;
+    
+    choicesGrid.innerHTML = '';
+    scenario.choices.forEach((choice, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = choice.text;
+        btn.onclick = () => selectChoice(i);
+        choicesGrid.appendChild(btn);
+    });
+    
+    resultBox.classList.remove('show');
+}
+
+function selectChoice(index) {
+    const scenario = scenarios[currentScenario];
+    const choice = scenario.choices[index];
+    const buttons = choicesGrid.querySelectorAll('.choice-btn');
+    
+    buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === index) {
+            btn.classList.add(choice.correct ? 'correct' : 'wrong');
+        }
+        if (scenario.choices[i].correct && i !== index) {
+            btn.classList.add('correct');
+        }
+    });
+    
+    resultTitle.textContent = choice.correct ? '✅ Survived!' : '❌ Poor Choice';
+    resultText.textContent = choice.feedback;
+    resultBox.classList.add('show');
+}
+
+function nextScenario() {
+    currentScenario = (currentScenario + 1) % scenarios.length;
+    loadScenario(currentScenario);
+}
+
+// Initialize first scenario
+loadScenario(0);
+
+// Cross-Page Submarine Tour
+(() => {
+    const pages = [
+        { url: 'index.html', name: 'Home' },
+        { url: 'creatures.html', name: 'Deep Sea Creatures' },
+        { url: 'cities.html', name: 'Sunken Cities' },
+        { url: 'Shipwrecks.html', name: 'Famous Shipwrecks' },
+        { url: 'reefs.html', name: 'Coral Reefs' },
+        { url: 'save.html', name: 'Save the Ocean' },
+        { url: 'ocean.html', name: 'Ocean Quiz' },
+        { url: 'feedback.html', name: 'Feedback' }
+    ];
+
+    const sub = document.querySelector('.submarine');
+    const startBtn = document.getElementById('startTour');
+    const stopBtn = document.getElementById('stopTour');
+    let tourState = JSON.parse(sessionStorage.getItem('oceanTour') || 'null');
+
+    function sailOnce() { sub.classList.remove('sail'); sub.offsetWidth; sub.classList.add('sail'); }
+
+    function showOverlay(text) {
+        let ov = document.getElementById('tourOverlay');
+        if (!ov) {
+            ov = document.createElement('div');
+            ov.id = 'tourOverlay';
+            ov.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(0,255,157,0.9),rgba(0,180,100,0.9));color:#000;padding:15px 30px;border-radius:30px;font-family:Orbitron,sans-serif;font-weight:bold;z-index:10000;box-shadow:0 5px 30px rgba(0,255,157,0.5);';
+            document.body.appendChild(ov);
+        }
+        ov.innerHTML = '🚢 Tour: ' + text; ov.style.display = 'block';
+    }
+
+    function hideOverlay() { const ov = document.getElementById('tourOverlay'); if (ov) ov.style.display = 'none'; }
+
+    if (tourState && tourState.active) {
+        startBtn.style.display = 'none'; stopBtn.style.display = 'inline-block';
+        showOverlay(pages[tourState.pageIndex].name); sailOnce();
+        const sections = document.querySelectorAll('header, main, .simulation-section, .shipwrecks-container, .death-toll-section, .whatif-section, footer');
+        let si = 0;
+        function scroll() {
+            if (!JSON.parse(sessionStorage.getItem('oceanTour') || 'null')?.active) { hideOverlay(); return; }
+            if (si < sections.length) {
+                sections[si].scrollIntoView({ behavior: 'smooth', block: 'start' }); sailOnce();
+                sections[si].style.outline = '2px solid rgba(0,255,157,.5)'; sections[si].style.outlineOffset = '4px';
+                setTimeout(() => { if(sections[si]) sections[si].style.outline = 'none'; }, 1500);
+                si++; setTimeout(scroll, 4500);
+            } else {
+                tourState.pageIndex = (tourState.pageIndex + 1) % pages.length;
+                sessionStorage.setItem('oceanTour', JSON.stringify(tourState));
+                setTimeout(() => { window.location.href = pages[tourState.pageIndex].url; }, 1500);
+            }
+        }
+        setTimeout(scroll, 1000);
+    }
+
+    startBtn?.addEventListener('click', () => { sessionStorage.setItem('oceanTour', JSON.stringify({ active: true, pageIndex: 0 })); window.location.href = 'index.html'; });
+    stopBtn?.addEventListener('click', () => { sessionStorage.removeItem('oceanTour'); startBtn.style.display = 'inline-block'; stopBtn.style.display = 'none'; hideOverlay(); });
+})();
+</script>
+</body>
+</html>
